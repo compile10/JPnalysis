@@ -4,7 +4,7 @@ A Next.js application that analyzes Japanese sentence structure using Claude AI.
 
 ## Features
 
-- 🎯 AI-powered Japanese sentence analysis using Claude 3.5 Sonnet
+- 🎯 AI-powered Japanese sentence analysis using Claude
 - 📊 Visual representation of sentence structure with arrows showing modification relationships
 - 🇯🇵 Support for any Japanese sentence
 - 🎨 Beautiful, modern UI with dark mode support
