@@ -104,3 +104,59 @@ body {
     color: #9ca3af;
   }
 }
+
+/* React Flow styling */
+:root {
+  --rf-edge-stroke-width: 2px;
+}
+
+.react-flow__edge-path {
+  stroke: #3b82f6 !important;
+  stroke-width: 2px !important;
+  opacity: 1 !important;
+}
+
+.react-flow__arrowhead {
+  fill: #3b82f6 !important;
+}
+
+.react-flow__edge-path-selector {
+  stroke-width: 20px !important;
+}
+
+/* React Flow Controls styling */
+.react-flow .react-flow__controls {
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.react-flow .react-flow__controls .react-flow__controls-button {
+  background: white;
+  border: 1px solid #d1d5db;
+  color: #1f2937;
+  width: 32px;
+  height: 32px;
+}
+
+.react-flow .react-flow__controls .react-flow__controls-button:hover {
+  background: #f3f4f6;
+}
+
+.react-flow .react-flow__controls .react-flow__controls-button svg {
+  fill: #1f2937;
+}
+
+@media (prefers-color-scheme: dark) {
+  .react-flow .react-flow__controls .react-flow__controls-button {
+    background: #374151;
+    border-color: #4b5563;
+    color: #e5e7eb;
+  }
+  
+  .react-flow .react-flow__controls .react-flow__controls-button:hover {
+    background: #4b5563;
+  }
+  
+  .react-flow .react-flow__controls .react-flow__controls-button svg {
+    fill: #e5e7eb;
+  }
+}

@@ -12,6 +12,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",
     "@types/sanitize-html": "^2.16.0",
+    "@xyflow/react": "^12.8.6",
     "next": "15.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
