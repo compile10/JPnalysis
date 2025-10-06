@@ -8,7 +8,6 @@ A Next.js application that analyzes Japanese sentence structure using Claude AI.
 - 🎯 AI-powered Japanese sentence analysis using Claude
 - 📊 Visual representation of sentence structure with arrows showing modification relationships
 - 🇯🇵 Support for any Japanese sentence
-- 🎨 Beautiful, modern UI with dark mode support
 - ⚡ Real-time analysis with structured JSON output
 
 ## Prerequisites
