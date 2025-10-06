@@ -1,4 +1,5 @@
 # 日本語 Sentence Analyzer (JPnalysis)
+<img width="1068" height="903" alt="image" src="https://github.com/user-attachments/assets/4f92282f-26b9-4548-b089-ebf7d5a777e9" />
 
 A Next.js application that analyzes Japanese sentence structure using Claude AI. This tool visualizes how words and phrases relate to each other, showing grammatical relationships with interactive diagrams.
 
