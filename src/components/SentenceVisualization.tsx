@@ -168,7 +168,7 @@ export default function SentenceVisualization({
           <div className="text-sm font-bold text-white text-center">
             {word.attachedParticle.text}
           </div>
-          {word.attachedParticle.reading && (
+          {word.attachedParticle.reading && word.attachedParticle.reading !== word.attachedParticle.text && (
             <div className="text-xs text-orange-100 text-center">
               {word.attachedParticle.reading}
             </div>
