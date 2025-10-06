@@ -1,20 +1,20 @@
 "use client";
 
-import type { SentenceAnalysis, WordNode } from "@/types/analysis";
-import { useCallback, useMemo, useState } from "react";
 import {
-  ReactFlow,
   Background,
   Controls,
-  Handle,
-  type Node,
   type Edge,
-  Position,
-  MarkerType,
-  useNodesState,
-  useEdgesState,
   type EdgeProps,
+  Handle,
+  MarkerType,
+  type Node,
+  Position,
+  ReactFlow,
+  useEdgesState,
+  useNodesState,
 } from "@xyflow/react";
+import { useCallback, useMemo, useState } from "react";
+import type { SentenceAnalysis, WordNode } from "@/types/analysis";
 import "@xyflow/react/dist/style.css";
 import ParticleModal from "./ParticleModal";
 
@@ -58,7 +58,7 @@ function WordNodeComponent({ data }: { data: WordNodeData }) {
         id="source-top"
         style={{ opacity: 0, top: 0 }}
       />
-      
+
       {/* Main word box */}
       <div
         className={`border-2 rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow ${
@@ -88,7 +88,7 @@ function WordNodeComponent({ data }: { data: WordNodeData }) {
           onClick={() =>
             onParticleClick(
               word.attachedParticle!.text,
-              word.attachedParticle!.description
+              word.attachedParticle!.description,
             )
           }
           className="bg-orange-500 hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700 border-2 border-orange-600 dark:border-orange-700 rounded-md px-2 py-1 shadow-md hover:shadow-lg -ml-2 mt-1 transition-all cursor-pointer transform hover:scale-110"
@@ -127,9 +127,9 @@ function CustomEdge({
   data,
 }: EdgeProps) {
   const nodeCount = (data as any)?.nodesBetween || 0;
-  
+
   let edgePath: string;
-  
+
   // If nodes are adjacent (no intermediate nodes), use nearly straight line
   if (nodeCount === 0) {
     // Straight horizontal line for adjacent nodes
@@ -138,13 +138,13 @@ function CustomEdge({
     // Nodes have intermediates - use arc from top to top
     const distance = Math.abs(targetX - sourceX);
     const arcHeight = Math.max(100, Math.min(150, distance * 0.3));
-    
+
     // Control points for a smooth high arc
     const controlPoint1X = sourceX + distance * 0.3;
     const controlPoint1Y = sourceY - arcHeight;
     const controlPoint2X = targetX - distance * 0.3;
     const controlPoint2Y = sourceY - arcHeight;
-    
+
     edgePath = `M ${sourceX} ${sourceY} C ${controlPoint1X} ${controlPoint1Y}, ${controlPoint2X} ${controlPoint2Y}, ${targetX} ${targetY}`;
   }
 
@@ -176,7 +176,7 @@ export default function SentenceVisualization({
 }: SentenceVisualizationProps) {
   const [selectedParticle, setSelectedParticle] = useState<string | null>(null);
   const [particleDescription, setParticleDescription] = useState<string | null>(
-    null
+    null,
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -186,7 +186,7 @@ export default function SentenceVisualization({
       setParticleDescription(description);
       setIsModalOpen(true);
     },
-    []
+    [],
   );
 
   const handleCloseModal = useCallback(() => {
@@ -205,7 +205,7 @@ export default function SentenceVisualization({
 
     // Create nodes for main sentence words
     const sortedWords = [...mainSentenceWords].sort(
-      (a, b) => a.position - b.position
+      (a, b) => a.position - b.position,
     );
     const spacing = 220; // Horizontal spacing between nodes
     const startX = -((sortedWords.length - 1) * spacing) / 2; // Center the nodes
@@ -227,13 +227,13 @@ export default function SentenceVisualization({
       if (word.modifies && word.modifies.length > 0) {
         for (const targetId of word.modifies) {
           // Calculate how many nodes are between source and target
-          const sourceIndex = sortedWords.findIndex(w => w.id === word.id);
-          const targetIndex = sortedWords.findIndex(w => w.id === targetId);
+          const sourceIndex = sortedWords.findIndex((w) => w.id === word.id);
+          const targetIndex = sortedWords.findIndex((w) => w.id === targetId);
           const nodesBetween = Math.abs(targetIndex - sourceIndex) - 1;
-          
+
           // Use top handles for arcing arrows, side handles for straight arrows
           const useTopHandles = nodesBetween > 0;
-          
+
           edges.push({
             id: `${word.id}-${targetId}`,
             source: word.id,
@@ -292,7 +292,7 @@ export default function SentenceVisualization({
           onClick={() =>
             handleParticleClick(
               word.attachedParticle!.text,
-              word.attachedParticle!.description
+              word.attachedParticle!.description,
             )
           }
           className="bg-orange-500 hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700 border-2 border-orange-600 dark:border-orange-700 rounded-md px-2 py-1 shadow-md hover:shadow-lg -ml-2 mt-1 transition-all cursor-pointer transform hover:scale-110"
@@ -463,7 +463,7 @@ export default function SentenceVisualization({
                     {word.modifies
                       .map(
                         (id) =>
-                          analysis.words.find((w) => w.id === id)?.text || id
+                          analysis.words.find((w) => w.id === id)?.text || id,
                       )
                       .join(", ")}
                   </div>

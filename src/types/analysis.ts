@@ -19,4 +19,3 @@ export interface SentenceAnalysis {
   explanation: string;
   isFragment: boolean; // True if this is a sentence fragment/incomplete sentence
 }
-

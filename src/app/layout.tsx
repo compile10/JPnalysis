@@ -14,7 +14,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "日本語 Sentence Analyzer - JPnalysis",
-  description: "Visualize Japanese sentence structure with AI-powered analysis. Analyze grammar, particles, and word relationships.",
+  description:
+    "Visualize Japanese sentence structure with AI-powered analysis. Analyze grammar, particles, and word relationships.",
 };
 
 export default function RootLayout({

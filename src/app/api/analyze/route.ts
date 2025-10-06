@@ -3,6 +3,52 @@ import { type NextRequest, NextResponse } from "next/server";
 import sanitizeHtml from "sanitize-html";
 import type { SentenceAnalysis } from "@/types/analysis";
 
+// Cache for memoizing API responses
+interface CacheEntry {
+  data: SentenceAnalysis;
+  timestamp: number;
+}
+
+const responseCache = new Map<string, CacheEntry>();
+const CACHE_DURATION_MS = 60 * 60 * 1000; // 1 hour
+
+// Clean up expired cache entries
+function cleanExpiredCache() {
+  const now = Date.now();
+  for (const [key, entry] of responseCache.entries()) {
+    if (now - entry.timestamp > CACHE_DURATION_MS) {
+      responseCache.delete(key);
+    }
+  }
+}
+
+// Get cached response if available and not expired
+function getCachedResponse(sentence: string): SentenceAnalysis | null {
+  const cached = responseCache.get(sentence);
+  if (cached) {
+    const now = Date.now();
+    if (now - cached.timestamp <= CACHE_DURATION_MS) {
+      return cached.data;
+    }
+    // Expired, remove it
+    responseCache.delete(sentence);
+  }
+  return null;
+}
+
+// Store response in cache
+function setCachedResponse(sentence: string, data: SentenceAnalysis) {
+  responseCache.set(sentence, {
+    data,
+    timestamp: Date.now(),
+  });
+  
+  // Periodically clean up expired entries
+  if (responseCache.size > 100) {
+    cleanExpiredCache();
+  }
+}
+
 // Define the schema for structured output
 const analysisSchema = {
   $schema: "http://json-schema.org/draft-07/schema#",
@@ -95,6 +141,12 @@ export async function POST(request: NextRequest) {
         { error: "Invalid sentence provided" },
         { status: 400 },
       );
+    }
+
+    // Check cache first
+    const cachedResponse = getCachedResponse(sentence);
+    if (cachedResponse) {
+      return NextResponse.json(cachedResponse);
     }
 
     const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -195,6 +247,9 @@ Use the analyze_sentence tool to structure your response.`,
             : undefined,
         })),
       };
+      
+      // Cache the successful response
+      setCachedResponse(sentence, sanitizedAnalysis);
       
       return NextResponse.json(sanitizedAnalysis);
     } else {

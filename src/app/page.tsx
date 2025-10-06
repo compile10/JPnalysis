@@ -1,9 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import SentenceInput from "@/components/SentenceInput";
 import SentenceVisualization from "@/components/SentenceVisualization";
 import type { SentenceAnalysis } from "@/types/analysis";
-import { useState } from "react";
 
 export default function Home() {
   const [analysis, setAnalysis] = useState<SentenceAnalysis | null>(null);
@@ -89,12 +89,15 @@ export default function Home() {
               <ul className="space-y-2 text-gray-700 dark:text-gray-300">
                 <li className="flex items-start">
                   <span className="mr-2">1.</span>
-                  <span>Enter a Japanese sentence in the input field above</span>
+                  <span>
+                    Enter a Japanese sentence in the input field above
+                  </span>
                 </li>
                 <li className="flex items-start">
                   <span className="mr-2">2.</span>
                   <span>
-                    Click "Analyze Sentence" to send it to Claude AI for analysis
+                    Click "Analyze Sentence" to send it to Claude AI for
+                    analysis
                   </span>
                 </li>
                 <li className="flex items-start">

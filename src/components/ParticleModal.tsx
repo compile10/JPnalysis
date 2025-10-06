@@ -9,7 +9,12 @@ interface ParticleModalProps {
   onClose: () => void;
 }
 
-export default function ParticleModal({ particle, description, isOpen, onClose }: ParticleModalProps) {
+export default function ParticleModal({
+  particle,
+  description,
+  isOpen,
+  onClose,
+}: ParticleModalProps) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -57,7 +62,7 @@ export default function ParticleModal({ particle, description, isOpen, onClose }
           <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
             Function in this sentence
           </h3>
-          <div 
+          <div
             className="prose leading-relaxed text-base"
             dangerouslySetInnerHTML={{ __html: description }}
           />
@@ -76,4 +81,3 @@ export default function ParticleModal({ particle, description, isOpen, onClose }
     </div>
   );
 }
-
