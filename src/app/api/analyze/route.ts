@@ -1,10 +1,9 @@
-import type { NextRequest } from "next/server";
 import {
   analyzeSentence,
   getCachedResponse,
   setCachedResponse,
 } from "@/lib/analysis";
-import { auth } from "@/lib/auth";
+import { withOptionalAuth } from "@/lib/api-auth";
 import { corsPreflightResponse, jsonResponse } from "@/lib/cors";
 import { saveToHistory } from "@/lib/history";
 import { resolveSettings } from "@/lib/settings";
@@ -14,12 +13,9 @@ export async function OPTIONS() {
   return corsPreflightResponse();
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
-
+export const POST = withOptionalAuth(
+  "analyze sentence",
+  async (request, session) => {
     const { sentence } = await request.json();
 
     if (!sentence || typeof sentence !== "string") {
@@ -55,14 +51,5 @@ export async function POST(request: NextRequest) {
     }
 
     return jsonResponse(analysis);
-  } catch (error) {
-    console.error("Error analyzing sentence:", error);
-    return jsonResponse(
-      {
-        error:
-          error instanceof Error ? error.message : "Failed to analyze sentence",
-      },
-      500,
-    );
-  }
-}
+  },
+);

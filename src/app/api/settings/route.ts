@@ -1,7 +1,6 @@
 import { PROVIDER_MAP } from "@common/providers";
 import type { Provider } from "@common/types";
-import type { NextRequest } from "next/server";
-import { auth } from "@/lib/auth";
+import { withAuth, withOptionalAuth } from "@/lib/api-auth";
 import { corsPreflightResponse, jsonResponse } from "@/lib/cors";
 import {
   DEFAULT_MODEL,
@@ -17,9 +16,9 @@ export async function OPTIONS() {
 
 const serverDefaults = { provider: DEFAULT_PROVIDER, model: DEFAULT_MODEL };
 
-export async function GET(request: NextRequest) {
-  try {
-    const session = await auth.api.getSession({ headers: request.headers });
+export const GET = withOptionalAuth(
+  "fetch settings",
+  async (_request, session) => {
     if (!session) {
       return jsonResponse({ ...serverDefaults, defaults: serverDefaults });
     }
@@ -36,41 +35,28 @@ export async function GET(request: NextRequest) {
       DEFAULT_MODEL,
     );
     return jsonResponse({ ...created, defaults: serverDefaults });
-  } catch (error) {
-    console.error("Error fetching settings:", error);
-    return jsonResponse({ error: "Failed to fetch settings" }, 500);
+  },
+);
+
+export const PUT = withAuth("update settings", async (request, session) => {
+  const { provider, model } = await request.json();
+
+  if (
+    !provider ||
+    typeof provider !== "string" ||
+    !(provider in PROVIDER_MAP)
+  ) {
+    return jsonResponse({ error: "Invalid provider specified" }, 400);
   }
-}
 
-export async function PUT(request: NextRequest) {
-  try {
-    const session = await auth.api.getSession({ headers: request.headers });
-    if (!session) {
-      return jsonResponse({ error: "Authentication required" }, 401);
-    }
-
-    const { provider, model } = await request.json();
-
-    if (
-      !provider ||
-      typeof provider !== "string" ||
-      !(provider in PROVIDER_MAP)
-    ) {
-      return jsonResponse({ error: "Invalid provider specified" }, 400);
-    }
-
-    if (!isValidModelId(model)) {
-      return jsonResponse({ error: "Invalid model specified" }, 400);
-    }
-
-    const updated = await upsertUserSettings(
-      session.user.id,
-      provider as Provider,
-      model,
-    );
-    return jsonResponse(updated);
-  } catch (error) {
-    console.error("Error updating settings:", error);
-    return jsonResponse({ error: "Failed to update settings" }, 500);
+  if (!isValidModelId(model)) {
+    return jsonResponse({ error: "Invalid model specified" }, 400);
   }
-}
+
+  const updated = await upsertUserSettings(
+    session.user.id,
+    provider as Provider,
+    model,
+  );
+  return jsonResponse(updated);
+});

@@ -2,7 +2,7 @@ import { ALLOWED_MIME_TYPES, MAX_IMAGE_SIZE } from "@common/image";
 import { HumanMessage } from "@langchain/core/messages";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { analyzeSentence } from "@/lib/analysis";
-import { auth } from "@/lib/auth";
+import { withOptionalAuth } from "@/lib/api-auth";
 import { corsPreflightResponse, jsonResponse } from "@/lib/cors";
 import { saveToHistory } from "@/lib/history";
 import { resolveSettings } from "@/lib/settings";
@@ -52,12 +52,9 @@ async function extractSentenceFromImage(
   return extractedText.trim();
 }
 
-export async function POST(request: Request) {
-  try {
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
-
+export const POST = withOptionalAuth(
+  "analyze image",
+  async (request, session) => {
     const formData = (await request.formData()) as unknown as {
       get(name: string): File | string | null;
     };
@@ -124,14 +121,5 @@ export async function POST(request: Request) {
     }
 
     return jsonResponse({ sentence, analysis });
-  } catch (error) {
-    console.error("Error in analyze-image:", error);
-    return jsonResponse(
-      {
-        error:
-          error instanceof Error ? error.message : "Failed to analyze image",
-      },
-      500,
-    );
-  }
-}
+  },
+);

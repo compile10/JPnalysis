@@ -13,6 +13,14 @@ const statement = {
 
 export const ac = createAccessControl(statement);
 
+/**
+ * A subset of the statement above, naming the actions a route requires -
+ * e.g. `{ invite: ["create"] }`. Unknown resources or actions fail to compile.
+ */
+export type Permissions = {
+  [K in keyof typeof statement]?: (typeof statement)[K][number][];
+};
+
 export const adminRole = ac.newRole({
   ...adminAc.statements,
   adminPanel: ["access"],
