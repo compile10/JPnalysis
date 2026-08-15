@@ -17,7 +17,7 @@ export class ApiError extends Error {
 
 /**
  * Analyze a Japanese sentence. The server resolves which provider/model to use
- * based on the authenticated user's settings (or defaults for anonymous).
+ * based on the authenticated user's settings.
  */
 export async function analyzeSentence(
   url: string,

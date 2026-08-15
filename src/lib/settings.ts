@@ -50,17 +50,12 @@ export async function upsertUserSettings(
 }
 
 /**
- * Resolve the provider/model for a request.
- * If a session is present, reads from the DB (falling back to defaults).
- * Otherwise returns hardcoded defaults.
+ * Resolve the provider/model for an authenticated request.
+ * Reads from the DB, falling back to defaults when the user has none saved.
  */
-export async function resolveSettings(
-  session: { user: { id: string } } | null,
-): Promise<ResolvedSettings> {
-  if (!session) {
-    return { provider: DEFAULT_PROVIDER, model: DEFAULT_MODEL };
-  }
-
+export async function resolveSettings(session: {
+  user: { id: string };
+}): Promise<ResolvedSettings> {
   const settings = await getUserSettings(session.user.id);
   if (settings) return settings;
 

@@ -2,7 +2,7 @@ import { ALLOWED_MIME_TYPES, MAX_IMAGE_SIZE } from "@common/image";
 import { HumanMessage } from "@langchain/core/messages";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { analyzeSentence } from "@/lib/analysis";
-import { withOptionalAuth } from "@/lib/api-auth";
+import { withAuth } from "@/lib/api-auth";
 import { corsPreflightResponse, jsonResponse } from "@/lib/cors";
 import { saveToHistory } from "@/lib/history";
 import { resolveSettings } from "@/lib/settings";
@@ -52,74 +52,69 @@ async function extractSentenceFromImage(
   return extractedText.trim();
 }
 
-export const POST = withOptionalAuth(
-  "analyze image",
-  async (request, session) => {
-    const formData = (await request.formData()) as unknown as {
-      get(name: string): File | string | null;
-    };
-    const imageFile = formData.get("image");
+export const POST = withAuth("analyze image", async (request, session) => {
+  const formData = (await request.formData()) as unknown as {
+    get(name: string): File | string | null;
+  };
+  const imageFile = formData.get("image");
 
-    if (!imageFile || !(imageFile instanceof File)) {
-      return jsonResponse({ error: "No image file provided" }, 400);
-    }
+  if (!imageFile || !(imageFile instanceof File)) {
+    return jsonResponse({ error: "No image file provided" }, 400);
+  }
 
-    if (!ALLOWED_MIME_TYPES.has(imageFile.type)) {
-      return jsonResponse(
-        {
-          error: `Unsupported image type: ${imageFile.type}. Supported: png, jpeg, gif, webp`,
-        },
-        400,
-      );
-    }
+  if (!ALLOWED_MIME_TYPES.has(imageFile.type)) {
+    return jsonResponse(
+      {
+        error: `Unsupported image type: ${imageFile.type}. Supported: png, jpeg, gif, webp`,
+      },
+      400,
+    );
+  }
 
-    if (imageFile.size > MAX_IMAGE_SIZE) {
-      return jsonResponse({ error: "Image exceeds maximum size of 20MB" }, 400);
-    }
+  if (imageFile.size > MAX_IMAGE_SIZE) {
+    return jsonResponse({ error: "Image exceeds maximum size of 20MB" }, 400);
+  }
 
-    const googleApiKey = process.env.GOOGLE_API_KEY;
-    if (!googleApiKey) {
-      return jsonResponse(
-        {
-          error:
-            "Server Error: Google API key not configured. Required for image text extraction.",
-        },
-        500,
-      );
-    }
+  const googleApiKey = process.env.GOOGLE_API_KEY;
+  if (!googleApiKey) {
+    return jsonResponse(
+      {
+        error:
+          "Server Error: Google API key not configured. Required for image text extraction.",
+      },
+      500,
+    );
+  }
 
-    const { provider, model } = await resolveSettings(session);
+  const { provider, model } = await resolveSettings(session);
 
-    const base64Data = await fileToBase64(imageFile);
+  const base64Data = await fileToBase64(imageFile);
 
-    let sentence: string;
-    try {
-      sentence = sanitizeForLLM(
-        await extractSentenceFromImage(base64Data, imageFile.type),
-      );
-    } catch (error) {
-      console.error("Error extracting text from image:", error);
-      return jsonResponse(
-        {
-          error:
-            error instanceof Error
-              ? error.message
-              : "Failed to extract text from image",
-        },
-        502,
-      );
-    }
+  let sentence: string;
+  try {
+    sentence = sanitizeForLLM(
+      await extractSentenceFromImage(base64Data, imageFile.type),
+    );
+  } catch (error) {
+    console.error("Error extracting text from image:", error);
+    return jsonResponse(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to extract text from image",
+      },
+      502,
+    );
+  }
 
-    const analysis = await analyzeSentence(sentence, provider, model);
+  const analysis = await analyzeSentence(sentence, provider, model);
 
-    if (session) {
-      try {
-        await saveToHistory(session.user.id, sentence, provider, model);
-      } catch (e) {
-        console.error("Failed to save history:", e);
-      }
-    }
+  try {
+    await saveToHistory(session.user.id, sentence, provider, model);
+  } catch (e) {
+    console.error("Failed to save history:", e);
+  }
 
-    return jsonResponse({ sentence, analysis });
-  },
-);
+  return jsonResponse({ sentence, analysis });
+});

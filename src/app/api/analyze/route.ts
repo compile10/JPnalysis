@@ -3,7 +3,7 @@ import {
   getCachedResponse,
   setCachedResponse,
 } from "@/lib/analysis";
-import { withOptionalAuth } from "@/lib/api-auth";
+import { withAuth } from "@/lib/api-auth";
 import { corsPreflightResponse, jsonResponse } from "@/lib/cors";
 import { saveToHistory } from "@/lib/history";
 import { resolveSettings } from "@/lib/settings";
@@ -13,43 +13,33 @@ export async function OPTIONS() {
   return corsPreflightResponse();
 }
 
-export const POST = withOptionalAuth(
-  "analyze sentence",
-  async (request, session) => {
-    const { sentence } = await request.json();
+export const POST = withAuth("analyze sentence", async (request, session) => {
+  const { sentence } = await request.json();
 
-    if (!sentence || typeof sentence !== "string") {
-      return jsonResponse({ error: "Invalid sentence provided" }, 400);
-    }
+  if (!sentence || typeof sentence !== "string") {
+    return jsonResponse({ error: "Invalid sentence provided" }, 400);
+  }
 
-    const sanitizedSentence = sanitizeForLLM(sentence);
+  const sanitizedSentence = sanitizeForLLM(sentence);
 
-    const { provider, model } = await resolveSettings(session);
+  const { provider, model } = await resolveSettings(session);
 
-    const cacheKey = `${provider}:${model}:${sanitizedSentence}`;
-    const cachedResponse = getCachedResponse(cacheKey);
+  const cacheKey = `${provider}:${model}:${sanitizedSentence}`;
+  const cachedResponse = getCachedResponse(cacheKey);
 
-    const analysis =
-      cachedResponse ??
-      (await analyzeSentence(sanitizedSentence, provider, model));
+  const analysis =
+    cachedResponse ??
+    (await analyzeSentence(sanitizedSentence, provider, model));
 
-    if (!cachedResponse) {
-      setCachedResponse(cacheKey, analysis);
-    }
+  if (!cachedResponse) {
+    setCachedResponse(cacheKey, analysis);
+  }
 
-    if (session) {
-      try {
-        await saveToHistory(
-          session.user.id,
-          sanitizedSentence,
-          provider,
-          model,
-        );
-      } catch (e) {
-        console.error("Failed to save history:", e);
-      }
-    }
+  try {
+    await saveToHistory(session.user.id, sanitizedSentence, provider, model);
+  } catch (e) {
+    console.error("Failed to save history:", e);
+  }
 
-    return jsonResponse(analysis);
-  },
-);
+  return jsonResponse(analysis);
+});

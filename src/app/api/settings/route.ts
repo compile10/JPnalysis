@@ -1,6 +1,6 @@
 import { PROVIDER_MAP } from "@common/providers";
 import type { Provider } from "@common/types";
-import { withAuth, withOptionalAuth } from "@/lib/api-auth";
+import { withAuth } from "@/lib/api-auth";
 import { corsPreflightResponse, jsonResponse } from "@/lib/cors";
 import {
   DEFAULT_MODEL,
@@ -16,27 +16,20 @@ export async function OPTIONS() {
 
 const serverDefaults = { provider: DEFAULT_PROVIDER, model: DEFAULT_MODEL };
 
-export const GET = withOptionalAuth(
-  "fetch settings",
-  async (_request, session) => {
-    if (!session) {
-      return jsonResponse({ ...serverDefaults, defaults: serverDefaults });
-    }
+export const GET = withAuth("fetch settings", async (_request, session) => {
+  const settings = await getUserSettings(session.user.id);
 
-    const settings = await getUserSettings(session.user.id);
+  if (settings) {
+    return jsonResponse({ ...settings, defaults: serverDefaults });
+  }
 
-    if (settings) {
-      return jsonResponse({ ...settings, defaults: serverDefaults });
-    }
-
-    const created = await upsertUserSettings(
-      session.user.id,
-      DEFAULT_PROVIDER,
-      DEFAULT_MODEL,
-    );
-    return jsonResponse({ ...created, defaults: serverDefaults });
-  },
-);
+  const created = await upsertUserSettings(
+    session.user.id,
+    DEFAULT_PROVIDER,
+    DEFAULT_MODEL,
+  );
+  return jsonResponse({ ...created, defaults: serverDefaults });
+});
 
 export const PUT = withAuth("update settings", async (request, session) => {
   const { provider, model } = await request.json();
