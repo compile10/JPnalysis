@@ -1,8 +1,8 @@
 # AGENTS.md
 
-Kaitai is an invite-only beta for AI-powered Japanese sentence analysis. The repo is a Next.js 16 web app (the product and the API) plus a separate Expo/React Native app in `mobile/` that talks to those same routes. Shared types, provider catalogs, and fetch helpers live in `common/`. Auth is Better Auth (email/password) on MongoDB; signup is gated by admin-issued invite codes, and `src/proxy.ts` sends signed-out web visitors to `/beta`. Analysis goes through LangChain against seven providers (Anthropic, OpenAI, Google, xAI, OpenRouter, Cerebras, Fireworks). The user’s chosen provider/model is stored in Mongo and applied server-side — clients do not pick a model per request.
+Kaitai is an invite-only beta for AI-powered Japanese sentence analysis. The repo is a Next.js 16 web app (the product and the API) plus a separate Expo/React Native app in `mobile/` that talks to those same routes. Shared types, provider catalogs, and fetch helpers live in `common/`. Auth is Better Auth (email/password) on MongoDB; signup is gated by admin-issued invite codes, and `src/proxy.ts` sends signed-out web visitors to `/beta`. Analysis goes through LangChain against seven providers (Anthropic, OpenAI, Google, xAI, OpenRouter, Cerebras, Fireworks). The user’s chosen provider/model is stored in Mongo and applied server-side — clients do not pick a model per request. 
 
-This file is a map of the tree, not a design doc. When you add, remove, rename, or repurpose a path, update the matching line here in the same change. Stale entries are worse than missing ones. Also keep the description above up-to-date as the project evolves.
+This file is a map of the tree, not a design doc. When you add, remove, rename, or repurpose a path, update the matching line here in the same change. Stale entries are worse than missing ones. Also keep the description above up-to-date as the project evolves. This does not represent every file in the project, just the important ones.
 
 ## Layout
 
