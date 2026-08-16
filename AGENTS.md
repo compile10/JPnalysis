@@ -21,6 +21,7 @@ This file is a map of the tree, not a design doc. When you add, remove, rename, 
 ├── components.json                 shadcn/ui config
 ├── .env.local.example              Provider keys + optional DEV_ADMIN_* overrides
 └── .github/workflows/              Claude Code GitHub Actions
+└── README.md                       Project overview, setup instructions
 ```
 
 ## `common/`
