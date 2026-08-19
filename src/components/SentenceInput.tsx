@@ -1,5 +1,6 @@
 "use client";
 
+import { MAX_SENTENCE_LENGTH } from "@common/api";
 import { ImagePlus } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -26,9 +27,12 @@ export default function SentenceInput({
     }
   }, [externalSentence]);
 
+  const trimmedLength = sentence.trim().length;
+  const isOverLimit = trimmedLength > MAX_SENTENCE_LENGTH;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (sentence.trim()) {
+    if (sentence.trim() && !isOverLimit) {
       onAnalyze(sentence.trim());
     }
   };
@@ -54,16 +58,28 @@ export default function SentenceInput({
             id="sentence"
             value={sentence}
             onChange={(e) => setSentence(e.target.value)}
-            className="w-full px-4 py-3 text-lg border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground"
+            className={`w-full px-4 py-3 text-lg border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground ${
+              isOverLimit ? "border-destructive" : "border-input"
+            }`}
             placeholder="例：私は美しい花を見ました。"
             disabled={isLoading}
+            aria-invalid={isOverLimit}
+            aria-describedby={isOverLimit ? "sentence-length" : undefined}
           />
+          {isOverLimit && (
+            <p
+              id="sentence-length"
+              className="mt-1.5 text-right text-sm tabular-nums text-red-400"
+            >
+              Your sentence is too long: {trimmedLength} / {MAX_SENTENCE_LENGTH}
+            </p>
+          )}
         </div>
 
         <div className="flex gap-3">
           <button
             type="submit"
-            disabled={isLoading || !sentence.trim()}
+            disabled={isLoading || !sentence.trim() || isOverLimit}
             className="flex-1 px-6 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             {isLoading ? "Analyzing..." : "Analyze Sentence"}
@@ -86,9 +102,9 @@ export default function SentenceInput({
           Try these examples:
         </p>
         <div className="flex flex-wrap gap-2">
-          {exampleSentences.map((example, index) => (
+          {exampleSentences.map((example) => (
             <button
-              key={index}
+              key={example}
               type="button"
               onClick={() => setSentence(example)}
               disabled={isLoading}

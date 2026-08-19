@@ -5,6 +5,13 @@ import type {
   SentenceAnalysis,
 } from "./types";
 
+/**
+ * Newspaper Japanese is 97.5% ≤ 100 characters; academic ~70; literary
+ * (Tanizaki) commonly exceeds 200. 220 covers long single sentences without
+ * admitting paragraph dumps.
+ */
+export const MAX_SENTENCE_LENGTH = 220;
+
 export class ApiError extends Error {
   constructor(
     message: string,

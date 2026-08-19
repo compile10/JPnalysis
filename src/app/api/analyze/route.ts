@@ -1,3 +1,4 @@
+import { MAX_SENTENCE_LENGTH } from "@common/api";
 import {
   analyzeSentence,
   getCachedResponse,
@@ -20,7 +21,20 @@ export const POST = withAuth("analyze sentence", async (request, session) => {
     return jsonResponse({ error: "Invalid sentence provided" }, 400);
   }
 
+  if (sentence.length > MAX_SENTENCE_LENGTH) {
+    return jsonResponse(
+      {
+        error: `Sentence exceeds maximum length of ${MAX_SENTENCE_LENGTH} characters`,
+      },
+      400,
+    );
+  }
+
   const sanitizedSentence = sanitizeForLLM(sentence);
+
+  if (!sanitizedSentence) {
+    return jsonResponse({ error: "Invalid sentence provided" }, 400);
+  }
 
   const { provider, model } = await resolveSettings(session);
 

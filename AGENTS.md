@@ -4,11 +4,13 @@ Kaitai is an invite-only beta for AI-powered Japanese sentence analysis. The rep
 
 This file is a map of the tree, not a design doc. When you add, remove, rename, or repurpose a path, update the matching line here in the same change. Stale entries are worse than missing ones. Also keep the description above up-to-date as the project evolves. This does not represent every file in the project, just the important ones.
 
+When testing, run the web app through the dockerfile with docker compose.
+
 ## Layout
 
 ```
 .
-├── common/                         Shared types, API clients, provider catalog, image limits (imported as @common/*)
+├── common/                         Shared types, API clients, provider catalog, image/sentence limits (imported as @common/*)
 ├── src/                            Next.js web app + API (imported as @/*)
 ├── mobile/                         Expo app; own package.json, talks to the web API
 ├── public/                         Static assets served by Next
@@ -30,7 +32,7 @@ This file is a map of the tree, not a design doc. When you add, remove, rename, 
 | --- | --- |
 | `types.ts` | `SentenceAnalysis`, `WordNode`, `Provider`, history/invite shapes |
 | `providers.ts` | `PROVIDER_MAP`, model lists, `DEFAULT_PROVIDER` / `DEFAULT_MODEL` |
-| `api.ts` | `analyzeSentence`, `analyzeImage`, `createInviteCode` fetch helpers |
+| `api.ts` | `analyzeSentence`, `analyzeImage`, `createInviteCode`; `MAX_SENTENCE_LENGTH` |
 | `image.ts` | 20MB cap and allowed MIME types for image upload |
 | `tailwind.config.js` | Shared light/dark color tokens (web + NativeWind) |
 | `assets/branding/logo.svg` | Wordmark used on web |

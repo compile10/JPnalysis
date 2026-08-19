@@ -1,3 +1,4 @@
+import { MAX_SENTENCE_LENGTH } from "@common/api";
 import { ALLOWED_MIME_TYPES, MAX_IMAGE_SIZE } from "@common/image";
 import { HumanMessage } from "@langchain/core/messages";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
@@ -105,6 +106,19 @@ export const POST = withAuth("analyze image", async (request, session) => {
             : "Failed to extract text from image",
       },
       502,
+    );
+  }
+
+  if (!sentence) {
+    return jsonResponse({ error: "Invalid sentence provided" }, 400);
+  }
+
+  if (sentence.length > MAX_SENTENCE_LENGTH) {
+    return jsonResponse(
+      {
+        error: `Sentence exceeds maximum length of ${MAX_SENTENCE_LENGTH} characters`,
+      },
+      400,
     );
   }
 

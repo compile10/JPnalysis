@@ -1,4 +1,5 @@
 import Logo from "@common/assets/branding/logo.svg";
+import { MAX_SENTENCE_LENGTH } from "@common/api";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
@@ -34,13 +35,17 @@ export default function HomeScreen() {
   const [sheetVisible, setSheetVisible] = useState(false);
   const iconColor = useRawCSSTheme("muted-foreground");
 
+  const trimmedLength = searchValue.trim().length;
+  const isOverLimit = trimmedLength > MAX_SENTENCE_LENGTH;
+
   const handleSearch = () => {
-    if (searchValue.trim()) {
-      router.push({
-        pathname: "/results",
-        params: { sentence: searchValue.trim() },
-      });
-    }
+    const trimmed = searchValue.trim();
+    if (!trimmed || isOverLimit) return;
+
+    router.push({
+      pathname: "/results",
+      params: { sentence: trimmed },
+    });
   };
 
   const handleCamera = async () => {
@@ -109,7 +114,9 @@ export default function HomeScreen() {
       <View className="mt-5 w-[90%] flex-row items-stretch gap-2 h-12">
         <TextInput
           value={searchValue}
-          className="flex-1 h-full px-3 border border-gray-500 rounded-md text-gray-900 dark:text-gray-100 bg-transparent"
+          className={`flex-1 h-full px-3 border rounded-md text-gray-900 dark:text-gray-100 bg-transparent ${
+            isOverLimit ? "border-red-500" : "border-gray-500"
+          }`}
           onChangeText={setSearchValue}
           placeholder="Insert the sentence..."
           placeholderTextColor="#687076"
@@ -124,6 +131,11 @@ export default function HomeScreen() {
           <Ionicons name="add" size={24} color={iconColor} />
         </TouchableOpacity>
       </View>
+      {isOverLimit && (
+        <ThemedText className="mt-1.5 w-[90%] text-right text-xs tabular-nums text-red-600">
+          Your sentence is too long: {trimmedLength} / {MAX_SENTENCE_LENGTH}
+        </ThemedText>
+      )}
 
       {/* Example Sentences */}
       <View className="mt-6 w-full items-center">
