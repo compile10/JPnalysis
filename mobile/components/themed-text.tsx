@@ -1,4 +1,4 @@
-import { Text, type TextProps } from "react-native";
+import { Text, TextInput, type TextInputProps, type TextProps } from "react-native";
 import { twMerge } from "tailwind-merge";
 
 export type ThemedTextProps = TextProps & {
@@ -6,7 +6,7 @@ export type ThemedTextProps = TextProps & {
   className?: string;
 };
 
-const defaultTextClass = "text-foreground";
+const defaultTextClass = "font-geist-reg text-foreground";
 
 const typeStyles = {
   default: "text-base leading-6",
@@ -26,6 +26,18 @@ export function ThemedText({
     <Text
       className={twMerge(defaultTextClass, typeStyles[type], className)}
       style={style}
+      {...rest}
+    />
+  );
+}
+
+export function ThemedTextInput({
+  className,
+  ...rest
+}: TextInputProps) {
+  return (
+    <TextInput
+      className={twMerge(defaultTextClass, className)}
       {...rest}
     />
   );

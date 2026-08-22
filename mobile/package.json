@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@better-auth/expo": "^1.6.14",
+    "@expo-google-fonts/geist": "^0.4.2",
     "@expo/vector-icons": "^15.0.3",
     "@native-html/render": "^1.0.0-alpha.0",
     "@shopify/flash-list": "2.0.2",
@@ -21,6 +22,7 @@
     "expo": "^56.0.8",
     "expo-constants": "~56.0.16",
     "expo-dev-client": "~56.0.18",
+    "expo-font": "~56.0.7",
     "expo-image-picker": "~56.0.15",
     "expo-linking": "~56.0.13",
     "expo-network": "~56.0.4",

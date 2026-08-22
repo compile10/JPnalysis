@@ -49,7 +49,8 @@
           "cameraPermission": "Allow Kaitai to use your camera to photograph Japanese text for analysis."
         }
       ],
-      "expo-status-bar"
+      "expo-status-bar",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,

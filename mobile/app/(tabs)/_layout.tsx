@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { colors as Colors } from "@common/tailwind.config";
 import { Tabs } from "expo-router";
 
+import { ThemedText } from "@/components/themed-text";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
 export default function TabLayout() {
@@ -23,6 +24,11 @@ export default function TabLayout() {
         },
         headerTintColor: Colors[colorScheme].foreground,
         tabBarShowLabel: true,
+        tabBarLabel: ({ color, children }) => (
+          <ThemedText className="text-xs" style={{ color }}>
+            {children}
+          </ThemedText>
+        ),
         headerShown: false,
       }}
     >

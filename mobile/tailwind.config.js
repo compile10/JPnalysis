@@ -19,6 +19,9 @@ module.exports = {
   theme: {
     extend: {
       colors: varColors,
+      fontFamily: {
+        "geist-reg": ["Geist_400Regular"],
+      },
     },
   },
   plugins: [],

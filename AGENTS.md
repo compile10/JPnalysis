@@ -120,16 +120,18 @@ Separate Expo 56 app (file routing). Dev API host is inferred from Expo `hostUri
 
 | Path | Role |
 | --- | --- |
-| `app/_layout.tsx` | Root stack, theme vars, Query, settings preload |
+| `app/_layout.tsx` | Root stack, Geist fonts, theme vars, Query, settings preload |
 | `app/(tabs)/index.tsx` | Analyze tab |
 | `app/(tabs)/more.tsx` | More / overflow tab |
 | `app/results.tsx` | Analysis results |
 | `app/history.tsx` | History |
 | `app/settings.tsx` | Provider/model |
 | `app/sign-in.tsx` / `sign-up.tsx` | Auth |
+| `components/themed-text.tsx` | Geist `ThemedText` / `ThemedTextInput` |
 | `components/dependency-map.tsx` | SVG dependency graph |
 | `components/bottom-sheet.tsx` / `bottom-sheet-picker.tsx` | Sheets |
 | `constants/api.ts` | `API_BASE_URL` + endpoint map |
+| `lib/fonts.ts` | Load Geist; NativeWind `font-geist-reg` maps to it |
 | `lib/auth-client.ts` | Better Auth Expo client (SecureStore) |
 | `lib/auth-fetch.ts` | Authenticated fetch |
 | `lib/query-client.ts` | Shared Query client |

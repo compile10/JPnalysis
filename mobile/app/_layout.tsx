@@ -8,16 +8,21 @@ import {
   ThemeProvider,
 } from "expo-router/react-navigation";
 import { StatusBar } from "expo-status-bar";
+import * as SplashScreen from "expo-splash-screen";
 import { vars } from "nativewind";
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect } from "react";
 import { View } from "react-native";
 import "react-native-reanimated";
 
 import { colors } from "@common/tailwind.config";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { ThemedText } from "@/components/themed-text";
 import { useSettingsQuery } from "@/hooks/use-settings-sync";
+import { useGeistFonts } from "@/lib/fonts";
 import { queryClient } from "@/lib/query-client";
+
+SplashScreen.preventAutoHideAsync();
 
 
 // Pre-build NativeWind vars() style objects for each color scheme.
@@ -51,13 +56,32 @@ function SessionPreloader() {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const [fontsLoaded, fontError] = useGeistFonts();
+
+  useEffect(() => {
+    if (fontsLoaded || fontError) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <ThemeVars>
           <SessionPreloader />
-          <Stack>
+          <Stack
+            screenOptions={{
+              headerTitle: ({ children, tintColor }) => (
+                <ThemedText type="defaultSemiBold" style={{ color: tintColor }}>
+                  {children}
+                </ThemedText>
+              ),
+            }}
+          >
             <Stack.Screen
               name="(tabs)"
               options={{ headerShown: false, title: "Home" }}

@@ -4,11 +4,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import { ThemedText } from "@/components/themed-text";
+import { ThemedText, ThemedTextInput } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { authClient } from "@/lib/auth-client";
 
@@ -67,7 +66,7 @@ export default function SignInScreen() {
             <ThemedText type="defaultSemiBold" className="mb-2 text-sm">
               Email
             </ThemedText>
-            <TextInput
+            <ThemedTextInput
               value={email}
               onChangeText={setEmail}
               placeholder="me@nihongo.com"
@@ -76,7 +75,7 @@ export default function SignInScreen() {
               autoCapitalize="none"
               autoCorrect={false}
               autoComplete="email"
-              className="p-4 rounded-xl border-2 border-border text-base text-foreground bg-transparent"
+              className="p-4 rounded-xl border-2 border-border text-base bg-transparent"
             />
           </View>
 
@@ -85,14 +84,14 @@ export default function SignInScreen() {
             <ThemedText type="defaultSemiBold" className="mb-2 text-sm">
               Password
             </ThemedText>
-            <TextInput
+            <ThemedTextInput
               value={password}
               onChangeText={setPassword}
               placeholder="Enter your password"
               placeholderTextColor="#9ca3af"
               secureTextEntry
               autoComplete="current-password"
-              className="p-4 rounded-xl border-2 border-border text-base text-foreground bg-transparent"
+              className="p-4 rounded-xl border-2 border-border text-base bg-transparent"
             />
           </View>
 

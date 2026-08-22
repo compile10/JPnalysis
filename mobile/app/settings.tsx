@@ -1,14 +1,8 @@
 import debounce from "lodash/debounce";
 import { useEffect, useMemo } from "react";
-import {
-  ScrollView,
-  Switch,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ScrollView, Switch, TouchableOpacity, View } from "react-native";
 import { BottomSheetPicker } from "@/components/bottom-sheet-picker";
-import { ThemedText } from "@/components/themed-text";
+import { ThemedText, ThemedTextInput } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useRawCSSTheme } from "@/hooks/use-raw-css-theme";
 import { useSettingsMutation } from "@/hooks/use-settings-sync";
@@ -136,12 +130,12 @@ export default function SettingsScreen() {
             <ThemedText type="subtitle" className="mb-2">
               Custom Model Name
             </ThemedText>
-            <TextInput
+            <ThemedTextInput
               value={model}
               onChangeText={handleCustomModelTextChange}
               placeholder="e.g., claude-opus-4-5-20251101"
               placeholderTextColor="#9ca3af"
-              className="p-4 rounded-xl border-2 border-border bg-card text-base text-foreground"
+              className="p-4 rounded-xl border-2 border-border bg-card text-base"
             />
           </View>
         ) : (

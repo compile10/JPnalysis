@@ -4,11 +4,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import { ThemedText } from "@/components/themed-text";
+import { ThemedText, ThemedTextInput } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { authClient } from "@/lib/auth-client";
 
@@ -79,7 +78,7 @@ export default function SignUpScreen() {
             <ThemedText type="defaultSemiBold" className="mb-2 text-sm">
               Name
             </ThemedText>
-            <TextInput
+            <ThemedTextInput
               value={name}
               onChangeText={setName}
               placeholder="Your name"
@@ -87,7 +86,7 @@ export default function SignUpScreen() {
               autoCapitalize="words"
               autoCorrect={false}
               autoComplete="name"
-              className="p-4 rounded-xl border-2 border-border text-base text-foreground bg-transparent"
+              className="p-4 rounded-xl border-2 border-border text-base bg-transparent"
             />
           </View>
 
@@ -96,7 +95,7 @@ export default function SignUpScreen() {
             <ThemedText type="defaultSemiBold" className="mb-2 text-sm">
               Email
             </ThemedText>
-            <TextInput
+            <ThemedTextInput
               value={email}
               onChangeText={setEmail}
               placeholder="me@nihongo.edu"
@@ -105,7 +104,7 @@ export default function SignUpScreen() {
               autoCapitalize="none"
               autoCorrect={false}
               autoComplete="email"
-              className="p-4 rounded-xl border-2 border-border text-base text-foreground bg-transparent"
+              className="p-4 rounded-xl border-2 border-border text-base bg-transparent"
             />
           </View>
 
@@ -114,14 +113,14 @@ export default function SignUpScreen() {
             <ThemedText type="defaultSemiBold" className="mb-2 text-sm">
               Password
             </ThemedText>
-            <TextInput
+            <ThemedTextInput
               value={password}
               onChangeText={setPassword}
               placeholder="Create a password"
               placeholderTextColor="#9ca3af"
               secureTextEntry
               autoComplete="new-password"
-              className="p-4 rounded-xl border-2 border-border text-base text-foreground bg-transparent"
+              className="p-4 rounded-xl border-2 border-border text-base bg-transparent"
             />
           </View>
 
@@ -130,7 +129,7 @@ export default function SignUpScreen() {
             <ThemedText type="defaultSemiBold" className="mb-2 text-sm">
               Invite Code
             </ThemedText>
-            <TextInput
+            <ThemedTextInput
               value={inviteCode}
               onChangeText={setInviteCode}
               placeholder="Your invite code"
@@ -138,7 +137,7 @@ export default function SignUpScreen() {
               autoCapitalize="none"
               autoCorrect={false}
               autoComplete="off"
-              className="p-4 rounded-xl border-2 border-border text-base text-foreground bg-transparent"
+              className="p-4 rounded-xl border-2 border-border text-base bg-transparent"
             />
             <ThemedText className="text-xs opacity-70 mt-2">
               Sign-ups are invite only. Ask an admin for a code.

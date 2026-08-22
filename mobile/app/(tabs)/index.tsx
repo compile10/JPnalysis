@@ -4,9 +4,9 @@ import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Alert, Image, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Image, TouchableOpacity, View } from "react-native";
 import { BottomSheet } from "@/components/bottom-sheet";
-import { ThemedText } from "@/components/themed-text";
+import { ThemedText, ThemedTextInput } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useRawCSSTheme } from "@/hooks/use-raw-css-theme";
 
@@ -112,7 +112,7 @@ export default function HomeScreen() {
         Breaking the language barrier.
       </ThemedText>
       <View className="mt-5 w-[90%] flex-row items-stretch gap-2 h-12">
-        <TextInput
+        <ThemedTextInput
           value={searchValue}
           className={`flex-1 h-full px-3 border rounded-md text-gray-900 dark:text-gray-100 bg-transparent ${
             isOverLimit ? "border-red-500" : "border-gray-500"

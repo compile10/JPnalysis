@@ -16,6 +16,7 @@ import { ThemedView } from "@/components/themed-view";
 import { buildApiUrl } from "@/constants/api";
 import { useRawCSSTheme } from "@/hooks/use-raw-css-theme";
 import { authFetch } from "@/lib/auth-fetch";
+import { geist } from "@/lib/fonts";
 
 export default function ResultsScreen() {
   const { sentence, imageUri, imageMimeType, imageFileName } =
@@ -190,7 +191,12 @@ export default function ResultsScreen() {
           <RenderHTML
             contentWidth={width - 72}
             source={{ html: analysis.explanation }}
-            baseStyle={{ color: textColor, fontSize: 15, lineHeight: 22 }}
+            baseStyle={{
+              color: textColor,
+              fontSize: 15,
+              lineHeight: 22,
+              fontFamily: geist.regular,
+            }}
             tagsStyles={{
               p: { marginBottom: 12 },
               strong: { fontWeight: "700" },
