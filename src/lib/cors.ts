@@ -18,13 +18,22 @@ function getAllowedOrigin(): string {
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": getAllowedOrigin(),
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Expose-Headers":
+    "Retry-After, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset",
 };
 
 /** Convenience: JSON response with CORS headers attached. */
-export function jsonResponse(data: unknown, status = 200) {
-  return NextResponse.json(data, { status, headers: corsHeaders });
+export function jsonResponse(
+  data: unknown,
+  status = 200,
+  responseHeaders?: Record<string, string>,
+) {
+  return NextResponse.json(data, {
+    status,
+    headers: { ...corsHeaders, ...responseHeaders },
+  });
 }
 
 /** Convenience: 204 preflight response with CORS headers. */

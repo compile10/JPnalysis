@@ -2,48 +2,55 @@ import type { HistoryEntry, PaginatedHistory } from "@common/types";
 import { withAuth } from "@/lib/api-auth";
 import { corsPreflightResponse, jsonResponse } from "@/lib/cors";
 import { historyCollection } from "@/lib/history";
+import { RATE_LIMIT_POLICIES } from "@/lib/rate-limit";
 
 // Handle CORS preflight requests
 export async function OPTIONS() {
   return corsPreflightResponse();
 }
 
-export const GET = withAuth("fetch history", async (request, session) => {
-  // Parse pagination params
-  const { searchParams } = new URL(request.url);
-  const page = Math.max(1, Number(searchParams.get("page")) || 1);
-  const limit = Math.min(
-    100,
-    Math.max(1, Number(searchParams.get("limit")) || 20),
-  );
-  const skip = (page - 1) * limit;
+export const GET = withAuth(
+  {
+    name: "fetch history",
+    rateLimit: RATE_LIMIT_POLICIES.history,
+  },
+  async (request, session) => {
+    // Parse pagination params
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, Number(searchParams.get("page")) || 1);
+    const limit = Math.min(
+      100,
+      Math.max(1, Number(searchParams.get("limit")) || 20),
+    );
+    const skip = (page - 1) * limit;
 
-  // Run count and paginated query in parallel
-  const [total, docs] = await Promise.all([
-    historyCollection.countDocuments({ userId: session.user.id }),
-    historyCollection
-      .find({ userId: session.user.id }, { projection: { analysis: 0 } })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .toArray(),
-  ]);
+    // Run count and paginated query in parallel
+    const [total, docs] = await Promise.all([
+      historyCollection.countDocuments({ userId: session.user.id }),
+      historyCollection
+        .find({ userId: session.user.id }, { projection: { analysis: 0 } })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .toArray(),
+    ]);
 
-  const items: HistoryEntry[] = docs.map((doc) => ({
-    id: doc._id.toHexString(),
-    sentence: doc.sentence,
-    provider: doc.provider,
-    model: doc.model,
-    createdAt: doc.createdAt.toISOString(),
-  }));
+    const items: HistoryEntry[] = docs.map((doc) => ({
+      id: doc._id.toHexString(),
+      sentence: doc.sentence,
+      provider: doc.provider,
+      model: doc.model,
+      createdAt: doc.createdAt.toISOString(),
+    }));
 
-  const result: PaginatedHistory = {
-    items,
-    total,
-    page,
-    limit,
-    totalPages: Math.ceil(total / limit),
-  };
+    const result: PaginatedHistory = {
+      items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
 
-  return jsonResponse(result);
-});
+    return jsonResponse(result);
+  },
+);

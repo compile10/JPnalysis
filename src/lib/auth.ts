@@ -13,6 +13,13 @@ import {
 } from "@/lib/invites";
 
 const INVITE_CODE_ERROR = "A valid invite code is required to sign up.";
+const clientIpHeader = (process.env.RATE_LIMIT_IP_HEADER ?? "x-forwarded-for")
+  .trim()
+  .toLowerCase();
+
+if (!/^[a-z0-9-]+$/.test(clientIpHeader)) {
+  throw new Error("RATE_LIMIT_IP_HEADER is not a valid HTTP header name");
+}
 
 function inviteCodeFromBody(body: unknown): string | null {
   if (typeof body !== "object" || body === null) {
@@ -35,6 +42,14 @@ export const auth = betterAuth({
     cookieCache: {
       enabled: true,
       maxAge: 5 * 60, // 5 minutes
+    },
+  },
+  rateLimit: {
+    storage: "database",
+  },
+  advanced: {
+    ipAddress: {
+      ipAddressHeaders: [clientIpHeader],
     },
   },
   trustedOrigins: [

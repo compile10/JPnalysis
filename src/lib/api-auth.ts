@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import type { Permissions } from "@/lib/auth-permissions";
 import { jsonResponse } from "@/lib/cors";
+import { checkRateLimit, type RateLimitPolicy } from "@/lib/rate-limit";
 
 export type Session = typeof auth.$Infer.Session;
 
@@ -13,6 +14,38 @@ type Handler<S extends Session | null> = (
 
 /** What a wrapper hands back: the value assigned to `export const GET`. */
 type RouteExport = (request: NextRequest) => Promise<Response>;
+
+interface RouteConfig {
+  name: string;
+  rateLimit?: RateLimitPolicy;
+}
+
+interface PermissionRouteConfig extends RouteConfig {
+  permissions: Permissions;
+}
+
+async function enforceRateLimit(
+  request: NextRequest,
+  session: Session | null,
+  policy: RateLimitPolicy | undefined,
+): Promise<Response | null> {
+  if (!policy) return null;
+
+  const decision = await checkRateLimit(request, session?.user.id, policy);
+  if (decision.allowed) return null;
+
+  return jsonResponse(
+    { error: decision.message, retryAfter: decision.retryAfter },
+    429,
+    {
+      "Cache-Control": "no-store",
+      "Retry-After": String(decision.retryAfter),
+      "X-RateLimit-Limit": String(decision.limit),
+      "X-RateLimit-Remaining": "0",
+      "X-RateLimit-Reset": String(decision.resetAt),
+    },
+  );
+}
 
 /**
  * Run `handler`, turning anything it throws into a logged 500.
@@ -32,30 +65,46 @@ async function catchingErrors(
   }
 }
 
-/**
- * Wrap a route that works signed in or signed out; the handler receives the
- * session or null and decides what an anonymous caller gets.
- */
-export function withOptionalAuth(
-  label: string,
+function withSessionLookup(
+  route: RouteConfig,
   handler: Handler<Session | null>,
 ): RouteExport {
   return (request) =>
-    catchingErrors(label, async () => {
+    catchingErrors(route.name, async () => {
       const session = await auth.api.getSession({ headers: request.headers });
       return handler(request, session);
     });
 }
 
+/**
+ * Wrap a route that works signed in or signed out; the handler receives the
+ * session or null and decides what an anonymous caller gets.
+ */
+export function withOptionalAuth(
+  route: RouteConfig,
+  handler: Handler<Session | null>,
+): RouteExport {
+  return withSessionLookup(route, async (request, session) => {
+    const limited = await enforceRateLimit(request, session, route.rateLimit);
+    if (limited) return limited;
+
+    return handler(request, session);
+  });
+}
+
 /** Wrap a route that requires a session, responding 401 when there is none. */
 export function withAuth(
-  label: string,
+  route: RouteConfig,
   handler: Handler<Session>,
 ): RouteExport {
-  return withOptionalAuth(label, async (request, session) => {
+  return withSessionLookup(route, async (request, session) => {
     if (!session) {
       return jsonResponse({ error: "Authentication required" }, 401);
     }
+
+    const limited = await enforceRateLimit(request, session, route.rateLimit);
+    if (limited) return limited;
+
     return handler(request, session);
   });
 }
@@ -65,13 +114,12 @@ export function withAuth(
  * when signed out and 403 when the session's role lacks them.
  */
 export function withPermission(
-  label: string,
-  permissions: Permissions,
+  route: PermissionRouteConfig,
   handler: Handler<Session>,
 ): RouteExport {
-  return withAuth(label, async (request, session) => {
+  return withAuth(route, async (request, session) => {
     const { success } = await auth.api.userHasPermission({
-      body: { userId: session.user.id, permissions },
+      body: { userId: session.user.id, permissions: route.permissions },
     });
 
     if (!success) {

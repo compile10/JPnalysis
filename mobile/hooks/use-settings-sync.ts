@@ -25,7 +25,10 @@ export function useSettingsQuery() {
     queryKey: SETTINGS_KEY,
     queryFn: async (): Promise<ServerSettings> => {
       const res = await authFetch(`${API_BASE_URL}/api/settings`);
-      if (!res.ok) throw new Error("Failed to fetch settings");
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(error.error || "Failed to fetch settings");
+      }
       const data: ServerSettings = await res.json();
 
       setProvider(data.provider);
