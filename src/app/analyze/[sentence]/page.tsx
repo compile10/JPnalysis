@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Header from "@/components/Header";
 import AnalysisContent from "./AnalysisContent";
 
 interface Props {
@@ -36,14 +35,5 @@ export default async function AnalyzePage({ params }: Props) {
     notFound();
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="container mx-auto px-4 py-12">
-        <div className="flex flex-col items-start space-y-8">
-          <AnalysisContent sentence={decoded} />
-        </div>
-      </main>
-    </div>
-  );
+  return <AnalysisContent sentence={decoded} />;
 }

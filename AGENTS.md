@@ -44,10 +44,15 @@ When testing, run the web app through the dockerfile with docker compose.
 | Path | Role |
 | --- | --- |
 | `app/layout.tsx` | Root layout: fonts, theme, Query + settings providers |
+| `app/error.tsx` | Branded page error boundary with retry + home recovery |
+| `app/global-error.tsx` | Standalone root-layout error boundary; owns document + styles, reads saved/system theme without providers |
+| `app/not-found.tsx` | Branded 404 with home recovery |
 | `app/page.tsx` | Home: input, image upload, hero |
 | `app/beta/page.tsx` | Prelaunch landing for signed-out users |
 | `app/sign-up/page.tsx` | Invite-code signup |
 | `app/analyze/[sentence]/page.tsx` | Analysis page (sentence in the URL) |
+| `app/analyze/[sentence]/layout.tsx` | Persistent analysis shell + header, outside the route error boundary |
+| `app/analyze/[sentence]/error.tsx` | Analysis error recovery without unmounting the shell |
 | `app/analyze/[sentence]/AnalysisContent.tsx` | Client analysis fetch + visualization |
 | `app/globals.css` | Tailwind v4 + theme tokens |
 
@@ -81,7 +86,7 @@ All analysis/history/settings routes require a session (`withAuth`). Invite crea
 | `validation.ts` | `sanitizeForLLM`, `isValidModelId` |
 | `dev-seed.ts` | Seeds `admin@localhost.dev` in development only |
 | `user-utils.ts` | `SessionUser` type |
-| `utils.ts` | `cn()` (clsx + tailwind-merge) |
+| `utils.ts` | `cn()` (clsx + tailwind-merge), shared `NextJSError` type for web error boundaries |
 | `analysis/analyze.ts` | Prompt + structured-output call |
 | `analysis/providers.ts` | LangChain chat-model factory per provider |
 | `analysis/schema.ts` | Zod schema for structured analysis |
@@ -93,6 +98,7 @@ All analysis/history/settings routes require a session (`withAuth`). Invite crea
 | Path | Role |
 | --- | --- |
 | `components/Header.tsx` | Top bar |
+| `components/ErrorFallback.tsx` | Provider-independent branded error/404 message + recovery actions |
 | `components/HomeContent.tsx` | Home interactive area |
 | `components/SentenceInput.tsx` | Sentence field + submit |
 | `components/SentenceVisualization.tsx` | React Flow dependency graph |
