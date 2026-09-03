@@ -3,7 +3,6 @@ import React, { useCallback, useMemo, useRef, useState } from "react";
 import { type LayoutChangeEvent, TouchableOpacity, View } from "react-native";
 import Svg, { Circle, Path } from "react-native-svg";
 import { ThemedText } from "@/components/themed-text";
-import { useColorScheme } from "@/hooks/use-color-scheme";
 
 // Arc colors — visually distinct, accessible palette
 const ARC_COLORS = [
@@ -41,8 +40,6 @@ export function DependencyMap({ words }: DependencyMapProps) {
     {},
   );
   const layoutsRef = useRef<Record<string, CardLayout>>({});
-
-  const isDark = useColorScheme() === "dark";
 
   // Collect layouts in a ref and flush to state once all cards have measured
   const handleCardLayout = useCallback(
@@ -201,7 +198,6 @@ export function DependencyMap({ words }: DependencyMapProps) {
                   isConnected={connectedIds.has(word.id)}
                   isAnySelected={selectedId !== null}
                   onPress={handleCardPress}
-                  isDark={isDark}
                 />
               </View>
             ))}
@@ -259,8 +255,7 @@ export function DependencyMap({ words }: DependencyMapProps) {
 
       {/* Legend */}
       <View
-        className="mt-3 px-3 py-2 rounded-lg flex-row flex-wrap gap-x-4 gap-y-1 items-center"
-        style={{ backgroundColor: isDark ? "#1a1d1e" : "#f3f4f6" }}
+        className="mt-3 px-3 py-2 rounded-lg flex-row flex-wrap gap-x-4 gap-y-1 items-center bg-muted"
       >
         <View className="flex-row items-center gap-1">
           <View className="w-3 h-3 rounded-sm bg-violet-600" />
@@ -291,7 +286,6 @@ interface WordMapCardProps {
   isConnected: boolean;
   isAnySelected: boolean;
   onPress: (id: string) => void;
-  isDark: boolean;
 }
 
 function WordMapCard({
@@ -301,13 +295,12 @@ function WordMapCard({
   isConnected,
   isAnySelected,
   onPress,
-  isDark,
 }: WordMapCardProps) {
   const isTopic = word.isTopic === true;
 
   // Determine border and background
   let borderClass = "border-border";
-  let bgClass = "bg-card";
+  let bgClass = "bg-muted";
 
   if (isTopic) {
     borderClass = "border-topic-border";
@@ -316,6 +309,7 @@ function WordMapCard({
 
   const dimmed = isAnySelected && !isConnected;
   const highlighted = isSelected || (isAnySelected && isConnected);
+  if (highlighted) borderClass = "border-primary";
 
   return (
     <TouchableOpacity
@@ -325,23 +319,12 @@ function WordMapCard({
     >
       <View
         className={`px-4 py-3 rounded-xl border-2 ${bgClass} ${borderClass}`}
-        style={
-          highlighted
-            ? {
-                borderColor: isSelected
-                  ? "#3b82f6"
-                  : isDark
-                    ? "#60a5fa"
-                    : "#93c5fd",
-              }
-            : undefined
-        }
       >
         <View className="flex-row items-center flex-wrap gap-x-2 gap-y-1">
           {/* Topic badge */}
           {isTopic && (
             <View className="bg-violet-600 px-1.5 py-0.5 rounded">
-              <ThemedText className="text-white text-[10px] font-bold">
+              <ThemedText className="text-primary-foreground text-[10px] font-bold">
                 TOPIC
               </ThemedText>
             </View>
@@ -353,7 +336,7 @@ function WordMapCard({
           {/* Attached particle */}
           {word.attachedParticle && (
             <View className="bg-orange-500 px-1.5 py-0.5 rounded">
-              <ThemedText className="text-white text-sm font-bold">
+              <ThemedText className="text-primary-foreground text-sm font-bold">
                 {word.attachedParticle.text}
               </ThemedText>
             </View>
@@ -384,10 +367,7 @@ function WordMapCard({
 
         {/* Expanded particle description when selected */}
         {isSelected && word.attachedParticle && (
-          <View
-            className="mt-2 pt-2 border-t"
-            style={{ borderTopColor: isDark ? "#374151" : "#e5e7eb" }}
-          >
+          <View className="mt-2 pt-2 border-t border-border">
             <ThemedText className="font-semibold text-sm mb-1">
               Particle 「{word.attachedParticle.text}」
             </ThemedText>

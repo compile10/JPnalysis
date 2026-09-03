@@ -82,11 +82,9 @@ export default function SignUpScreen() {
               value={name}
               onChangeText={setName}
               placeholder="Your name"
-              placeholderTextColor="#9ca3af"
               autoCapitalize="words"
               autoCorrect={false}
               autoComplete="name"
-              className="p-4 rounded-xl border-2 border-border text-base bg-transparent"
             />
           </View>
 
@@ -99,12 +97,10 @@ export default function SignUpScreen() {
               value={email}
               onChangeText={setEmail}
               placeholder="me@nihongo.edu"
-              placeholderTextColor="#9ca3af"
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
               autoComplete="email"
-              className="p-4 rounded-xl border-2 border-border text-base bg-transparent"
             />
           </View>
 
@@ -117,10 +113,8 @@ export default function SignUpScreen() {
               value={password}
               onChangeText={setPassword}
               placeholder="Create a password"
-              placeholderTextColor="#9ca3af"
               secureTextEntry
               autoComplete="new-password"
-              className="p-4 rounded-xl border-2 border-border text-base bg-transparent"
             />
           </View>
 
@@ -133,11 +127,9 @@ export default function SignUpScreen() {
               value={inviteCode}
               onChangeText={setInviteCode}
               placeholder="Your invite code"
-              placeholderTextColor="#9ca3af"
               autoCapitalize="none"
               autoCorrect={false}
               autoComplete="off"
-              className="p-4 rounded-xl border-2 border-border text-base bg-transparent"
             />
             <ThemedText className="text-xs opacity-70 mt-2">
               Sign-ups are invite only. Ask an admin for a code.
@@ -146,8 +138,8 @@ export default function SignUpScreen() {
 
           {/* Error */}
           {error && (
-            <View className="mb-5 p-3 rounded-xl bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800">
-              <ThemedText className="text-sm text-red-600 dark:text-red-400">
+            <View className="mb-5 p-3 rounded-xl bg-error-bg border border-error-border">
+              <ThemedText className="text-sm text-destructive">
                 {error}
               </ThemedText>
             </View>
@@ -160,7 +152,7 @@ export default function SignUpScreen() {
             disabled={isLoading}
             activeOpacity={0.7}
           >
-            <ThemedText className="text-base font-semibold text-white">
+            <ThemedText className="text-base font-semibold text-primary-foreground">
               {isLoading ? "Creating account..." : "Create Account"}
             </ThemedText>
           </TouchableOpacity>

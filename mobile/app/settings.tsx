@@ -1,6 +1,12 @@
 import debounce from "lodash/debounce";
 import { useEffect, useMemo } from "react";
-import { ScrollView, Switch, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  Switch,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { BottomSheetPicker } from "@/components/bottom-sheet-picker";
 import { ThemedText, ThemedTextInput } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -84,8 +90,14 @@ export default function SettingsScreen() {
 
   if (!isHydrated) {
     return (
-      <ThemedView className="flex-1" edges={["left", "right"]}>
-        <ThemedText>Loading settings...</ThemedText>
+      <ThemedView
+        className="flex-1 items-center justify-center gap-4 pb-24"
+        edges={["left", "right"]}
+      >
+        <ActivityIndicator size="large" color={tintColor} />
+        <ThemedText className="text-muted-foreground">
+          Loading settings...
+        </ThemedText>
       </ThemedView>
     );
   }
@@ -134,8 +146,6 @@ export default function SettingsScreen() {
               value={model}
               onChangeText={handleCustomModelTextChange}
               placeholder="e.g., claude-opus-4-5-20251101"
-              placeholderTextColor="#9ca3af"
-              className="p-4 rounded-xl border-2 border-border bg-card text-base"
             />
           </View>
         ) : (
@@ -153,13 +163,13 @@ export default function SettingsScreen() {
                   key={m.id}
                   className={`p-4 rounded-xl border-2 ${
                     model === m.id
-                      ? "bg-gray-100 dark:bg-gray-800 border-primary"
-                      : "bg-transparent border-border"
+                      ? "bg-accent border-primary"
+                      : "bg-muted border-border"
                   }`}
                   onPress={() => handlePresetModelChange(m.id)}
                 >
                   <View className="flex-row items-center mb-2">
-                    <View className="w-5 h-5 rounded-full border-2 border-gray-400 items-center justify-center">
+                    <View className="w-5 h-5 rounded-full border-2 border-muted-foreground items-center justify-center">
                       {model === m.id && (
                         <View className="w-2.5 h-2.5 rounded-full bg-primary" />
                       )}
@@ -168,7 +178,7 @@ export default function SettingsScreen() {
                       {m.name}
                     </ThemedText>
                     {m.speed && (
-                      <View className="px-2 py-1 rounded-md bg-gray-200 dark:bg-gray-700">
+                      <View className="px-2 py-1 rounded-md bg-secondary">
                         <ThemedText className="text-xs">{m.speed}</ThemedText>
                       </View>
                     )}

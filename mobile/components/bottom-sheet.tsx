@@ -32,7 +32,7 @@ export function BottomSheet({
   children,
 }: BottomSheetProps) {
   const translateY = useSharedValue(SCREEN_HEIGHT);
-  const bgColor = useRawCSSTheme("background");
+  const bgColor = useRawCSSTheme("popover");
 
   useEffect(() => {
     if (visible) {
@@ -84,11 +84,11 @@ export function BottomSheet({
           <Pressable onPress={() => {}}>
             <Animated.View
               style={[{ backgroundColor: bgColor }, animatedStyle]}
-              className="rounded-t-2xl pb-8 pt-4 px-2"
+              className="rounded-t-2xl border-t border-border pb-8 pt-4 px-2"
             >
               <GestureDetector gesture={panGesture}>
                 <View className="w-full items-center pt-1 pb-3">
-                  <View className="w-10 h-1 rounded-full bg-gray-300 dark:bg-gray-600" />
+                  <View className="w-10 h-1 rounded-full bg-muted-foreground opacity-40" />
                 </View>
               </GestureDetector>
               <ThemedText type="subtitle" className="px-4 mb-3">

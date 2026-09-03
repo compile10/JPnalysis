@@ -101,7 +101,7 @@ export default function HistoryScreen() {
   if (isLoading) {
     return (
       <ThemedView
-        className="flex-1 items-center justify-center"
+        className="flex-1 items-center justify-center pb-24"
         edges={["left", "right"]}
       >
         <ActivityIndicator size="large" color={tintColor} />
@@ -113,11 +113,11 @@ export default function HistoryScreen() {
   if (error && items.length === 0) {
     return (
       <ThemedView
-        className="flex-1 justify-center px-8"
+        className="flex-1 justify-center px-8 pb-24"
         edges={["left", "right"]}
       >
         <View className="items-center gap-3">
-          <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
+          <Ionicons name="alert-circle-outline" size={48} color={tintColor} />
           <ThemedText className="text-center opacity-80">{error}</ThemedText>
           <Pressable
             className="mt-4 px-6 py-3 rounded-xl bg-primary"
@@ -127,7 +127,9 @@ export default function HistoryScreen() {
             }}
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
           >
-            <ThemedText className="text-white font-semibold">Retry</ThemedText>
+            <ThemedText className="text-primary-foreground font-semibold">
+              Retry
+            </ThemedText>
           </Pressable>
         </View>
       </ThemedView>
@@ -138,7 +140,7 @@ export default function HistoryScreen() {
   if (items.length === 0) {
     return (
       <ThemedView
-        className="flex-1 justify-center items-center px-12"
+        className="flex-1 justify-center items-center px-12 pb-24"
         edges={["left", "right"]}
       >
         <Ionicons name="time-outline" size={64} color={iconColor} />

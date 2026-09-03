@@ -5,6 +5,7 @@ import { Stack } from "expo-router";
 import {
   DarkTheme,
   DefaultTheme,
+  type Theme,
   ThemeProvider,
 } from "expo-router/react-navigation";
 import { StatusBar } from "expo-status-bar";
@@ -34,6 +35,27 @@ function buildVars(scheme: Record<string, string>) {
 }
 const lightVars = buildVars(colors.light);
 const darkVars = buildVars(colors.dark);
+
+function buildNavigationTheme(
+  baseTheme: Theme,
+  scheme: (typeof colors)["light"],
+): Theme {
+  return {
+    ...baseTheme,
+    colors: {
+      ...baseTheme.colors,
+      primary: scheme.primary,
+      background: scheme.background,
+      card: scheme.background,
+      text: scheme.foreground,
+      border: scheme.border,
+      notification: scheme.destructive,
+    },
+  };
+}
+
+const lightNavigationTheme = buildNavigationTheme(DefaultTheme, colors.light);
+const darkNavigationTheme = buildNavigationTheme(DarkTheme, colors.dark);
 
 /** Provides CSS variable values for the active color scheme to all descendants. */
 function ThemeVars({ children }: { children: ReactNode }) {
@@ -70,7 +92,11 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <ThemeProvider
+        value={
+          colorScheme === "dark" ? darkNavigationTheme : lightNavigationTheme
+        }
+      >
         <ThemeVars>
           <SessionPreloader />
           <Stack

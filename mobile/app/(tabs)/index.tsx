@@ -114,17 +114,16 @@ export default function HomeScreen() {
       <View className="mt-5 w-[90%] flex-row items-stretch gap-2 h-12">
         <ThemedTextInput
           value={searchValue}
-          className={`flex-1 h-full px-3 border rounded-md text-gray-900 dark:text-gray-100 bg-transparent ${
-            isOverLimit ? "border-red-500" : "border-gray-500"
+          className={`flex-1 h-full px-3 py-0 border rounded-md ${
+            isOverLimit ? "border-destructive" : "border-input"
           }`}
           onChangeText={setSearchValue}
           placeholder="Insert the sentence..."
-          placeholderTextColor="#687076"
           returnKeyType="search"
           onSubmitEditing={handleSearch}
         />
         <TouchableOpacity
-          className="w-12 h-12 rounded-md border border-gray-500 items-center justify-center"
+          className="w-12 h-12 rounded-md border border-input bg-muted items-center justify-center"
           onPress={() => setSheetVisible(true)}
           accessibilityLabel="Add image"
         >
@@ -132,7 +131,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
       {isOverLimit && (
-        <ThemedText className="mt-1.5 w-[90%] text-right text-xs tabular-nums text-red-600">
+        <ThemedText className="mt-1.5 w-[90%] text-right text-xs tabular-nums text-destructive">
           Your sentence is too long: {trimmedLength} / {MAX_SENTENCE_LENGTH}
         </ThemedText>
       )}
@@ -146,12 +145,12 @@ export default function HomeScreen() {
           {EXAMPLE_SENTENCES.map((sentence) => (
             <TouchableOpacity
               key={sentence}
-              className="px-3 py-2 rounded-2xl bg-gray-500 dark:bg-white"
+              className="px-3 py-2 rounded-2xl bg-secondary border border-border"
               onPress={() =>
                 router.push({ pathname: "/results", params: { sentence } })
               }
             >
-              <ThemedText className="text-sm text-white dark:text-black">
+              <ThemedText className="text-sm text-secondary-foreground">
                 {sentence}
               </ThemedText>
             </TouchableOpacity>
@@ -177,7 +176,7 @@ export default function HomeScreen() {
         title="Add Image"
       >
         <TouchableOpacity
-          className="flex-row items-center px-4 py-3.5 mx-2 rounded-xl active:bg-gray-100 dark:active:bg-gray-800"
+          className="flex-row items-center px-4 py-3.5 mx-2 rounded-xl active:bg-accent"
           onPress={handleCamera}
           activeOpacity={0.6}
         >
@@ -185,7 +184,7 @@ export default function HomeScreen() {
           <ThemedText className="ml-3 text-base">Take Photo</ThemedText>
         </TouchableOpacity>
         <TouchableOpacity
-          className="flex-row items-center px-4 py-3.5 mx-2 rounded-xl active:bg-gray-100 dark:active:bg-gray-800"
+          className="flex-row items-center px-4 py-3.5 mx-2 rounded-xl active:bg-accent"
           onPress={handleGallery}
           activeOpacity={0.6}
         >

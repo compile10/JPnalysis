@@ -7,6 +7,8 @@ export type ThemedTextProps = TextProps & {
 };
 
 const defaultTextClass = "font-geist-reg text-foreground";
+const defaultTextInputClass =
+  "p-4 rounded-xl border-2 border-input text-base bg-muted placeholder:text-muted-foreground";
 
 const typeStyles = {
   default: "text-base leading-6",
@@ -37,7 +39,7 @@ export function ThemedTextInput({
 }: TextInputProps) {
   return (
     <TextInput
-      className={twMerge(defaultTextClass, className)}
+      className={twMerge(defaultTextClass, defaultTextInputClass, className)}
       {...rest}
     />
   );

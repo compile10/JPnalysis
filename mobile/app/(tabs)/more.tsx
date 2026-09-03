@@ -22,7 +22,7 @@ export default function MoreScreen() {
   if (isPending) {
     return (
       <ThemedView
-        className="flex-1 items-center justify-center"
+        className="flex-1 items-center justify-center pb-24"
         edges={["top", "left", "right"]}
       >
         <ActivityIndicator size="large" color={tintColor} />
@@ -43,7 +43,7 @@ export default function MoreScreen() {
         {/* User profile header */}
         <View className="items-center pt-10 pb-6 px-5">
           <View className="w-20 h-20 rounded-full items-center justify-center mb-4 bg-primary">
-            <ThemedText className="text-3xl font-bold text-white">
+            <ThemedText className="text-3xl font-bold text-primary-foreground">
               {initial}
             </ThemedText>
           </View>
@@ -83,8 +83,8 @@ export default function MoreScreen() {
             onPress={handleSignOut}
             activeOpacity={0.6}
           >
-            <Ionicons name="log-out-outline" size={24} color="#ef4444" />
-            <ThemedText className="ml-3 text-base text-red-500">
+            <Ionicons name="log-out-outline" size={24} color={tintColor} />
+            <ThemedText className="ml-3 text-base text-destructive">
               Sign Out
             </ThemedText>
           </TouchableOpacity>
@@ -96,7 +96,7 @@ export default function MoreScreen() {
   // Unauthenticated view
   return (
     <ThemedView
-      className="flex-1 items-center justify-center px-12"
+      className="flex-1 items-center justify-center px-12 pb-24"
       edges={["top", "left", "right"]}
     >
       <Ionicons name="person-circle-outline" size={80} color={iconColor} />
@@ -113,7 +113,7 @@ export default function MoreScreen() {
           onPress={() => router.push("/sign-in")}
           activeOpacity={0.7}
         >
-          <ThemedText className="text-base font-semibold text-white">
+          <ThemedText className="text-base font-semibold text-primary-foreground">
             Sign In
           </ThemedText>
         </TouchableOpacity>

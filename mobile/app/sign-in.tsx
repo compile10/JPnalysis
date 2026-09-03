@@ -50,7 +50,7 @@ export default function SignInScreen() {
       >
         <ScrollView
           className="flex-1 px-6"
-          contentContainerClassName="pt-8 pb-12"
+          contentContainerClassName="flex-grow justify-center pt-8 pb-28"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -70,12 +70,10 @@ export default function SignInScreen() {
               value={email}
               onChangeText={setEmail}
               placeholder="me@nihongo.com"
-              placeholderTextColor="#9ca3af"
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
               autoComplete="email"
-              className="p-4 rounded-xl border-2 border-border text-base bg-transparent"
             />
           </View>
 
@@ -88,17 +86,15 @@ export default function SignInScreen() {
               value={password}
               onChangeText={setPassword}
               placeholder="Enter your password"
-              placeholderTextColor="#9ca3af"
               secureTextEntry
               autoComplete="current-password"
-              className="p-4 rounded-xl border-2 border-border text-base bg-transparent"
             />
           </View>
 
           {/* Error */}
           {error && (
-            <View className="mb-5 p-3 rounded-xl bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800">
-              <ThemedText className="text-sm text-red-600 dark:text-red-400">
+            <View className="mb-5 p-3 rounded-xl bg-error-bg border border-error-border">
+              <ThemedText className="text-sm text-destructive">
                 {error}
               </ThemedText>
             </View>
@@ -111,7 +107,7 @@ export default function SignInScreen() {
             disabled={isLoading}
             activeOpacity={0.7}
           >
-            <ThemedText className="text-base font-semibold text-white">
+            <ThemedText className="text-base font-semibold text-primary-foreground">
               {isLoading ? "Signing in..." : "Sign In"}
             </ThemedText>
           </TouchableOpacity>
