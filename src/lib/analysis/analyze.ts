@@ -1,6 +1,6 @@
-import type { Provider, SentenceAnalysis } from "@common/types";
+import type { SentenceAnalysis } from "@common/types";
 import sanitizeHtml from "sanitize-html";
-import { createChatModel } from "./providers";
+import { createChatModel } from "./client";
 import { analysisSchema } from "./schema";
 
 const ANALYSIS_PROMPT = `Analyze the following Japanese sentence and break it down into its constituent words and phrases. For each word/phrase, identify what it modifies or relates to in the sentence. This will be used to create a visual diagram showing the grammatical relationships.
@@ -53,22 +53,11 @@ EXPLANATION FORMATTING:
 - Use lists for multiple points
 Example: "<p>This sentence follows the <strong>SOV pattern</strong>. The topic <strong>私</strong> is marked with は.</p>"`;
 
-/**
- * Analyzes a Japanese sentence using the specified AI provider and model.
- *
- * @param sentence - The Japanese sentence to analyze
- * @param provider - The AI provider to use (e.g., "anthropic", "openai")
- * @param model - The specific model name to use
- * @returns A promise that resolves to the sentence analysis
- * @throws Error if the provider/model cannot be created or the analysis fails
- */
+/** Analyzes a Japanese sentence through OpenRouter. */
 export async function analyzeSentence(
   sentence: string,
-  provider: Provider,
-  model: string,
 ): Promise<SentenceAnalysis> {
-  // Create chat model with provider factory
-  const chatModel = createChatModel(provider, model);
+  const chatModel = createChatModel();
 
   // Wrap with structured output
   const structuredModel = chatModel.withStructuredOutput(analysisSchema, {

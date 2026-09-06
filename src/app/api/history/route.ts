@@ -28,7 +28,10 @@ export const GET = withAuth(
     const [total, docs] = await Promise.all([
       historyCollection.countDocuments({ userId: session.user.id }),
       historyCollection
-        .find({ userId: session.user.id }, { projection: { analysis: 0 } })
+        .find(
+          { userId: session.user.id },
+          { projection: { _id: 1, sentence: 1, createdAt: 1 } },
+        )
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
@@ -38,8 +41,6 @@ export const GET = withAuth(
     const items: HistoryEntry[] = docs.map((doc) => ({
       id: doc._id.toHexString(),
       sentence: doc.sentence,
-      provider: doc.provider,
-      model: doc.model,
       createdAt: doc.createdAt.toISOString(),
     }));
 

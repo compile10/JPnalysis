@@ -1,7 +1,7 @@
 import type { HistoryEntry, PaginatedHistory } from "@common/types";
-import { formatDistanceToNow } from "date-fns";
 import { Ionicons } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
+import { formatDistanceToNow } from "date-fns";
 import { router } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, View } from "react-native";
@@ -10,20 +10,8 @@ import { ThemedView } from "@/components/themed-view";
 import { buildApiUrl } from "@/constants/api";
 import { useRawCSSTheme } from "@/hooks/use-raw-css-theme";
 import { authFetch } from "@/lib/auth-fetch";
-import { PROVIDER_MAP, useSettingsStore } from "@/stores/settings-store";
 
 const PAGE_SIZE = 20;
-
-/**
- * Resolve a provider ID + model ID to friendly display names.
- */
-function getProviderModelLabel(providerId: string, modelId: string): string {
-  const config = PROVIDER_MAP[providerId as keyof typeof PROVIDER_MAP];
-  const providerName = config?.name ?? providerId;
-  const modelName =
-    config?.models.find((m) => m.id === modelId)?.name ?? modelId;
-  return `${providerName} / ${modelName}`;
-}
 
 export default function HistoryScreen() {
   const [items, setItems] = useState<HistoryEntry[]>([]);
@@ -36,7 +24,6 @@ export default function HistoryScreen() {
 
   const loadingMoreRef = useRef(false);
 
-  const expertMode = useSettingsStore((s) => s.expertMode);
   const tintColor = useRawCSSTheme("primary");
   const iconColor = useRawCSSTheme("muted-foreground");
 
@@ -185,12 +172,6 @@ export default function HistoryScreen() {
                 })}
               </ThemedText>
             </View>
-
-            {expertMode && (
-              <ThemedText className="text-xs opacity-50 mt-1">
-                {getProviderModelLabel(item.provider, item.model)}
-              </ThemedText>
-            )}
           </Pressable>
         )}
         ListFooterComponent={

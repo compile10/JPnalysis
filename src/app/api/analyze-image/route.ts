@@ -1,13 +1,16 @@
 import { MAX_SENTENCE_LENGTH } from "@common/api";
 import { ALLOWED_MIME_TYPES, MAX_IMAGE_SIZE } from "@common/image";
 import { HumanMessage } from "@langchain/core/messages";
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import { analyzeSentence } from "@/lib/analysis";
+import {
+  ANALYSIS_MODEL,
+  ANALYSIS_PROVIDER,
+  analyzeSentence,
+  createChatModel,
+} from "@/lib/analysis";
 import { withAuth } from "@/lib/api-auth";
 import { corsPreflightResponse, jsonResponse } from "@/lib/cors";
 import { saveToHistory } from "@/lib/history";
 import { RATE_LIMIT_POLICIES } from "@/lib/rate-limit";
-import { resolveSettings } from "@/lib/settings";
 import { sanitizeForLLM } from "@/lib/validation";
 
 export async function OPTIONS() {
@@ -23,12 +26,7 @@ async function extractSentenceFromImage(
   base64Data: string,
   mimeType: string,
 ): Promise<string> {
-  const model = new ChatGoogleGenerativeAI({
-    model: "gemini-3-flash-preview",
-    apiKey: process.env.GOOGLE_API_KEY,
-    maxOutputTokens: 512,
-    temperature: 0,
-  });
+  const model = createChatModel();
 
   const message = new HumanMessage({
     content: [
@@ -38,7 +36,7 @@ async function extractSentenceFromImage(
       },
       {
         type: "image_url",
-        image_url: `data:${mimeType};base64,${base64Data}`,
+        image_url: { url: `data:${mimeType};base64,${base64Data}` },
       },
     ],
   });
@@ -82,18 +80,15 @@ export const POST = withAuth(
       return jsonResponse({ error: "Image exceeds maximum size of 20MB" }, 400);
     }
 
-    const googleApiKey = process.env.GOOGLE_API_KEY;
-    if (!googleApiKey) {
+    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+    if (!openRouterApiKey) {
       return jsonResponse(
         {
-          error:
-            "Server Error: Google API key not configured. Required for image text extraction.",
+          error: "Server Error: AI service not configured.",
         },
         500,
       );
     }
-
-    const { provider, model } = await resolveSettings(session);
 
     const base64Data = await fileToBase64(imageFile);
 
@@ -128,10 +123,15 @@ export const POST = withAuth(
       );
     }
 
-    const analysis = await analyzeSentence(sentence, provider, model);
+    const analysis = await analyzeSentence(sentence);
 
     try {
-      await saveToHistory(session.user.id, sentence, provider, model);
+      await saveToHistory(
+        session.user.id,
+        sentence,
+        ANALYSIS_PROVIDER,
+        ANALYSIS_MODEL,
+      );
     } catch (e) {
       console.error("Failed to save history:", e);
     }

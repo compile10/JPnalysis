@@ -1,5 +1,7 @@
 import { MAX_SENTENCE_LENGTH } from "@common/api";
 import {
+  ANALYSIS_MODEL,
+  ANALYSIS_PROVIDER,
   analyzeSentence,
   getCachedResponse,
   setCachedResponse,
@@ -8,7 +10,6 @@ import { withAuth } from "@/lib/api-auth";
 import { corsPreflightResponse, jsonResponse } from "@/lib/cors";
 import { saveToHistory } from "@/lib/history";
 import { RATE_LIMIT_POLICIES } from "@/lib/rate-limit";
-import { resolveSettings } from "@/lib/settings";
 import { sanitizeForLLM } from "@/lib/validation";
 
 export async function OPTIONS() {
@@ -42,21 +43,23 @@ export const POST = withAuth(
       return jsonResponse({ error: "Invalid sentence provided" }, 400);
     }
 
-    const { provider, model } = await resolveSettings(session);
-
-    const cacheKey = `${provider}:${model}:${sanitizedSentence}`;
+    const cacheKey = `${ANALYSIS_PROVIDER}:${ANALYSIS_MODEL}:${sanitizedSentence}`;
     const cachedResponse = getCachedResponse(cacheKey);
 
     const analysis =
-      cachedResponse ??
-      (await analyzeSentence(sanitizedSentence, provider, model));
+      cachedResponse ?? (await analyzeSentence(sanitizedSentence));
 
     if (!cachedResponse) {
       setCachedResponse(cacheKey, analysis);
     }
 
     try {
-      await saveToHistory(session.user.id, sanitizedSentence, provider, model);
+      await saveToHistory(
+        session.user.id,
+        sanitizedSentence,
+        ANALYSIS_PROVIDER,
+        ANALYSIS_MODEL,
+      );
     } catch (e) {
       console.error("Failed to save history:", e);
     }

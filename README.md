@@ -4,11 +4,10 @@ AI-powered Japanese sentence breakdown and visualization. Available as a **Next.
 
 ## Features
 
-- Sentence analysis via 7 AI providers (Anthropic, OpenAI, Google, xAI, OpenRouter, Cerebras, Fireworks)
+- AI-powered Japanese sentence analysis
 - Interactive dependency visualization (React Flow on web, SVG on mobile)
 - Image upload — extract Japanese text from photos
 - Analysis history for authenticated users
-- Server-synced provider/model settings per user
 - Email/password auth via Better Auth
 
 ## Getting Started
@@ -16,7 +15,7 @@ AI-powered Japanese sentence breakdown and visualization. Available as a **Next.
 ### Web — Docker (recommended)
 
 ```bash
-cp .env.local.example .env.local   # add at least one AI provider key
+cp .env.local.example .env.local   # add OPENROUTER_API_KEY
 docker compose up                   # starts Next.js + MongoDB replica set
 ```
 
@@ -24,7 +23,7 @@ docker compose up                   # starts Next.js + MongoDB replica set
 
 ```bash
 npm install
-cp .env.local.example .env.local   # add API keys + MONGODB_URI (replica set required)
+cp .env.local.example .env.local   # add OPENROUTER_API_KEY + MONGODB_URI (replica set required)
 npm run dev
 ```
 
@@ -40,20 +39,14 @@ Android emulator uses `10.0.2.2:3000` (pre-configured). For physical devices, up
 
 ## Environment Variables
 
-Copy `.env.local.example` — set `MONGODB_URI` and at least one AI key:
+Copy `.env.local.example` — set `MONGODB_URI` and `OPENROUTER_API_KEY`:
 
 | Variable | Notes |
 |----------|-------|
 | `MONGODB_URI` | Auto-set in Docker; must be a replica set |
 | `BETTER_AUTH_URL` | Defaults to `http://localhost:3000` |
 | `RATE_LIMIT_IP_HEADER` | Trusted proxy client-IP header; defaults to `x-forwarded-for` |
-| `ANTHROPIC_API_KEY` | [console.anthropic.com](https://console.anthropic.com/) |
-| `OPENAI_API_KEY` | [platform.openai.com](https://platform.openai.com/api-keys) |
-| `GOOGLE_API_KEY` | [makersuite.google.com](https://makersuite.google.com/app/apikey) |
-| `XAI_API_KEY` | [console.x.ai](https://console.x.ai/) |
 | `OPENROUTER_API_KEY` | [openrouter.ai](https://openrouter.ai/keys) |
-| `CEREBRAS_API_KEY` | [cloud.cerebras.ai](https://cloud.cerebras.ai/) |
-| `FIREWORKS_API_KEY` | [fireworks.ai](https://fireworks.ai/) |
 | `DEV_ADMIN_EMAIL` | Dev-only; default `admin@localhost.dev` |
 | `DEV_ADMIN_PASSWORD` | Dev-only; default `dev-admin-password` |
 
@@ -61,6 +54,8 @@ Production traffic must reach the app through a trusted reverse proxy that
 overwrites `RATE_LIMIT_IP_HEADER`; do not forward a client-supplied value. API
 and Better Auth rate-limit counters are stored in MongoDB so they are shared by
 all app instances and survive deployments.
+
+Account preferences are managed through the settings screens and `/api/settings`.
 
 ### Developer admin account
 

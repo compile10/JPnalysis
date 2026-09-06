@@ -1,63 +1,40 @@
-import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "@common/providers";
-import type { Provider } from "@common/types";
-import type { Document } from "mongodb";
+import type { UserSettings } from "@common/types";
 import mongoClient from "@/lib/db";
-
-export { DEFAULT_MODEL, DEFAULT_PROVIDER };
 
 export interface SettingsDocument {
   userId: string;
-  provider: Provider;
-  model: string;
+  preferences?: UserSettings;
   updatedAt: Date;
-}
-
-export interface ResolvedSettings {
-  provider: Provider;
-  model: string;
 }
 
 const settingsCollection = mongoClient
   .db()
-  .collection<SettingsDocument & Document>("user_settings");
-
-// Ensure index exists once per process (HMR-safe)
-// biome-ignore lint/suspicious/noExplicitAny: globalThis augmentation without declaration merging
-if (!(globalThis as any)["kaitai.settings.indexes"]) {
-  (globalThis as any)["kaitai.settings.indexes"] = true;
-  void settingsCollection.createIndex({ userId: 1 }, { unique: true });
-}
+  .collection<SettingsDocument>("user_settings");
 
 export async function getUserSettings(
   userId: string,
-): Promise<ResolvedSettings | null> {
+): Promise<UserSettings | null> {
   const doc = await settingsCollection.findOne({ userId });
   if (!doc) return null;
-  return { provider: doc.provider, model: doc.model };
+  return doc.preferences ?? {};
 }
 
 export async function upsertUserSettings(
   userId: string,
-  provider: Provider,
-  model: string,
-): Promise<ResolvedSettings> {
+  preferences: UserSettings,
+): Promise<UserSettings> {
+  await settingsCollection.createIndex({ userId: 1 }, { unique: true });
   await settingsCollection.updateOne(
     { userId },
-    { $set: { provider, model, updatedAt: new Date() } },
+    { $set: { preferences, updatedAt: new Date() } },
     { upsert: true },
   );
-  return { provider, model };
+  return preferences;
 }
 
-/**
- * Resolve the provider/model for an authenticated request.
- * Reads from the DB, falling back to defaults when the user has none saved.
- */
+/** Resolve account preferences for an authenticated request. */
 export async function resolveSettings(session: {
   user: { id: string };
-}): Promise<ResolvedSettings> {
-  const settings = await getUserSettings(session.user.id);
-  if (settings) return settings;
-
-  return { provider: DEFAULT_PROVIDER, model: DEFAULT_MODEL };
+}): Promise<UserSettings> {
+  return (await getUserSettings(session.user.id)) ?? {};
 }

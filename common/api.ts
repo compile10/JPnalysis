@@ -23,8 +23,7 @@ export class ApiError extends Error {
 }
 
 /**
- * Analyze a Japanese sentence. The server resolves which provider/model to use
- * based on the authenticated user's settings.
+ * Analyze a Japanese sentence.
  */
 export async function analyzeSentence(
   url: string,
@@ -51,8 +50,7 @@ export async function analyzeSentence(
 }
 
 /**
- * Analyze a Japanese sentence from an image. The server resolves which
- * provider/model to use based on the authenticated user's settings.
+ * Analyze a Japanese sentence from an image.
  */
 export async function analyzeImage(
   url: string,

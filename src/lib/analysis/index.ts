@@ -8,5 +8,9 @@ export {
   responseCache,
   setCachedResponse,
 } from "./cache";
-export { createChatModel, PROVIDER_CONFIG } from "./providers";
+export {
+  ANALYSIS_MODEL,
+  ANALYSIS_PROVIDER,
+  createChatModel,
+} from "./client";
 export { analysisSchema } from "./schema";

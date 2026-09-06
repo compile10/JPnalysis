@@ -1,34 +1,27 @@
-import type { Provider } from "@common/types";
+import type { UserSettings } from "@common/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth-client";
 import { useSettingsStore } from "@/providers/settings-store-provider";
-
-interface ServerSettings {
-  provider: Provider;
-  model: string;
-}
 
 export const SETTINGS_QUERY_KEY = ["settings"] as const;
 
 export function useSettingsQuery() {
   const { data: session } = authClient.useSession();
-  const setProvider = useSettingsStore((s) => s.setProvider);
-  const setModel = useSettingsStore((s) => s.setModel);
+  const setSettings = useSettingsStore((s) => s.setSettings);
 
   return useQuery({
     queryKey: SETTINGS_QUERY_KEY,
-    queryFn: async (): Promise<ServerSettings> => {
+    queryFn: async (): Promise<UserSettings> => {
       const res = await fetch("/api/settings");
       if (!res.ok) {
         const error = await res.json().catch(() => ({}));
         throw new Error(error.error || "Failed to fetch settings");
       }
-      const data = await res.json();
+      const data: UserSettings = await res.json();
 
-      setProvider(data.provider);
-      setModel(data.model);
+      setSettings(data);
 
-      return { provider: data.provider, model: data.model };
+      return data;
     },
     enabled: !!session?.user,
   });
@@ -36,9 +29,10 @@ export function useSettingsQuery() {
 
 export function useSettingsMutation() {
   const queryClient = useQueryClient();
+  const setSettings = useSettingsStore((s) => s.setSettings);
 
   return useMutation({
-    mutationFn: async (settings: ServerSettings) => {
+    mutationFn: async (settings: UserSettings) => {
       const res = await fetch("/api/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -48,9 +42,10 @@ export function useSettingsMutation() {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || "Failed to save settings");
       }
-      return settings;
+      return (await res.json()) as UserSettings;
     },
     onSuccess: (settings) => {
+      setSettings(settings);
       queryClient.setQueryData(SETTINGS_QUERY_KEY, settings);
     },
   });

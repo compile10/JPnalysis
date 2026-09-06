@@ -1,92 +1,12 @@
-import debounce from "lodash/debounce";
-import { useEffect, useMemo } from "react";
-import {
-  ActivityIndicator,
-  ScrollView,
-  Switch,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { BottomSheetPicker } from "@/components/bottom-sheet-picker";
-import { ThemedText, ThemedTextInput } from "@/components/themed-text";
+import { ActivityIndicator, ScrollView, View } from "react-native";
+import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useRawCSSTheme } from "@/hooks/use-raw-css-theme";
-import { useSettingsMutation } from "@/hooks/use-settings-sync";
-import {
-  PROVIDER_MAP,
-  type Provider,
-  useSettingsStore,
-} from "@/stores/settings-store";
-
-const PROVIDER_OPTIONS = Object.values(PROVIDER_MAP).map((p) => ({
-  id: p.id,
-  label: p.name,
-}));
-
-const CUSTOM_MODEL_DEBOUNCE_MS = 400;
+import { useSettingsStore } from "@/stores/settings-store";
 
 export default function SettingsScreen() {
-  const {
-    provider,
-    model,
-    useCustomModel,
-    expertMode,
-    setProvider,
-    setModel,
-    setUseCustomModel,
-    setExpertMode,
-    isHydrated,
-  } = useSettingsStore();
-
+  const { isHydrated } = useSettingsStore();
   const tintColor = useRawCSSTheme("primary");
-  const borderColor = useRawCSSTheme("border");
-
-  const models = PROVIDER_MAP[provider]?.models ?? [];
-
-  const { mutate: syncSettings } = useSettingsMutation();
-
-  const debouncedSync = useMemo(
-    () =>
-      debounce((prov: string, m: string) => {
-        syncSettings({ provider: prov as Provider, model: m });
-      }, CUSTOM_MODEL_DEBOUNCE_MS),
-    [syncSettings],
-  );
-
-  // immediately flushes the debounced sync when the component unmounts
-  // this ensures any pending sync is completed when the user navigates away
-  useEffect(() => () => debouncedSync.flush(), [debouncedSync]);
-
-  const handleProviderChange = (id: string) => {
-    debouncedSync.cancel();
-    setProvider(id as Provider);
-    const newDefault = PROVIDER_MAP[id as Provider]?.defaultModel ?? "";
-    syncSettings({ provider: id as Provider, model: newDefault });
-  };
-
-  const handlePresetModelChange = (newModel: string) => {
-    debouncedSync.cancel();
-    setModel(newModel);
-    syncSettings({ provider, model: newModel });
-  };
-
-  const handleCustomModelTextChange = (newModel: string) => {
-    setModel(newModel);
-    debouncedSync(provider, newModel);
-  };
-
-  const handleUseCustomModelChange = (value: boolean) => {
-    setUseCustomModel(value);
-    if (!value) {
-      debouncedSync.cancel();
-      const isPreset = models.some((m) => m.id === model);
-      if (!isPreset) {
-        const defaultModel = PROVIDER_MAP[provider]?.defaultModel ?? "";
-        setModel(defaultModel);
-        syncSettings({ provider, model: defaultModel });
-      }
-    }
-  };
 
   if (!isHydrated) {
     return (
@@ -107,114 +27,11 @@ export default function SettingsScreen() {
       <ScrollView className="flex-1 px-5" showsVerticalScrollIndicator={false}>
         <View className="mb-6 mt-5">
           <ThemedText type="subtitle" className="mb-2">
-            AI Provider
+            General
           </ThemedText>
-          <ThemedText className="text-sm opacity-70 mb-4">
-            Choose which AI provider to use for sentence analysis.
+          <ThemedText className="text-sm opacity-70">
+            More settings are coming soon.
           </ThemedText>
-
-          <BottomSheetPicker
-            title="Select Provider"
-            options={PROVIDER_OPTIONS}
-            selectedId={provider}
-            onSelect={handleProviderChange}
-          />
-        </View>
-
-        <View className="mb-6">
-          <View className="flex-row items-center">
-            <View className="flex-1">
-              <ThemedText type="defaultSemiBold">Use Custom Model</ThemedText>
-              <ThemedText className="text-[13px] opacity-70 mt-1">
-                Enter a specific model name instead of choosing from presets
-              </ThemedText>
-            </View>
-            <Switch
-              value={useCustomModel}
-              onValueChange={handleUseCustomModelChange}
-              trackColor={{ false: borderColor, true: tintColor }}
-            />
-          </View>
-        </View>
-
-        {useCustomModel ? (
-          <View className="mb-6">
-            <ThemedText type="subtitle" className="mb-2">
-              Custom Model Name
-            </ThemedText>
-            <ThemedTextInput
-              value={model}
-              onChangeText={handleCustomModelTextChange}
-              placeholder="e.g., claude-opus-4-5-20251101"
-            />
-          </View>
-        ) : (
-          <View className="mb-6">
-            <ThemedText type="subtitle" className="mb-2">
-              Select Model
-            </ThemedText>
-            <ThemedText className="text-sm opacity-70 mb-4">
-              Choose which model to use for sentence analysis.
-            </ThemedText>
-
-            <View className="gap-3">
-              {models.map((m) => (
-                <TouchableOpacity
-                  key={m.id}
-                  className={`p-4 rounded-xl border-2 ${
-                    model === m.id
-                      ? "bg-accent border-primary"
-                      : "bg-muted border-border"
-                  }`}
-                  onPress={() => handlePresetModelChange(m.id)}
-                >
-                  <View className="flex-row items-center mb-2">
-                    <View className="w-5 h-5 rounded-full border-2 border-muted-foreground items-center justify-center">
-                      {model === m.id && (
-                        <View className="w-2.5 h-2.5 rounded-full bg-primary" />
-                      )}
-                    </View>
-                    <ThemedText type="defaultSemiBold" className="flex-1 ml-3">
-                      {m.name}
-                    </ThemedText>
-                    {m.speed && (
-                      <View className="px-2 py-1 rounded-md bg-secondary">
-                        <ThemedText className="text-xs">{m.speed}</ThemedText>
-                      </View>
-                    )}
-                  </View>
-                  <ThemedText className="text-sm opacity-70 ml-8 mb-1">
-                    {m.description}
-                  </ThemedText>
-                  {m.pricing && (
-                    <ThemedText className="text-xs opacity-50 ml-8">
-                      Pricing: {m.pricing}
-                    </ThemedText>
-                  )}
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        )}
-
-        {/* Display section */}
-        <View className="mb-6 mt-2">
-          <ThemedText type="subtitle" className="mb-4">
-            Display
-          </ThemedText>
-          <View className="flex-row items-center">
-            <View className="flex-1">
-              <ThemedText type="defaultSemiBold">Expert Mode</ThemedText>
-              <ThemedText className="text-[13px] opacity-70 mt-1">
-                Show provider and model details in history
-              </ThemedText>
-            </View>
-            <Switch
-              value={expertMode}
-              onValueChange={setExpertMode}
-              trackColor={{ false: borderColor, true: tintColor }}
-            />
-          </View>
         </View>
       </ScrollView>
     </ThemedView>

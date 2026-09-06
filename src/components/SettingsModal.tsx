@@ -1,9 +1,9 @@
 "use client";
 
-import { Bot, type LucideIcon, Settings, Shield } from "lucide-react";
+import { type LucideIcon, Settings, Shield } from "lucide-react";
 import { type ReactNode, useEffect, useState } from "react";
 import AdminSettingsPage from "@/components/settings/AdminSettingsPage";
-import ModelsSettingsPage from "@/components/settings/ModelsSettingsPage";
+import GeneralSettingsPage from "@/components/settings/GeneralSettingsPage";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 interface SettingsModalProps {
@@ -12,7 +12,7 @@ interface SettingsModalProps {
   onClose: () => void;
 }
 
-type SettingsSection = "models" | "admin";
+type SettingsSection = "general" | "admin";
 
 const SETTINGS_SECTIONS: Array<{
   id: SettingsSection;
@@ -20,9 +20,9 @@ const SETTINGS_SECTIONS: Array<{
   icon: LucideIcon;
 }> = [
   {
-    id: "models",
-    label: "Models",
-    icon: Bot,
+    id: "general",
+    label: "General",
+    icon: Settings,
   },
   {
     id: "admin",
@@ -36,11 +36,12 @@ export default function SettingsModal({
   canAccessAdmin,
   onClose,
 }: SettingsModalProps) {
-  const [activeSection, setActiveSection] = useState<SettingsSection>("models");
+  const [activeSection, setActiveSection] =
+    useState<SettingsSection>("general");
 
   useEffect(() => {
     if (!canAccessAdmin && activeSection === "admin") {
-      setActiveSection("models");
+      setActiveSection("general");
     }
   }, [activeSection, canAccessAdmin]);
 
@@ -48,7 +49,7 @@ export default function SettingsModal({
     (section) => section.id !== "admin" || canAccessAdmin,
   );
   const sectionContent: Record<SettingsSection, ReactNode> = {
-    models: <ModelsSettingsPage isOpen={isOpen} onClose={onClose} />,
+    general: <GeneralSettingsPage />,
     admin: <AdminSettingsPage />,
   };
 

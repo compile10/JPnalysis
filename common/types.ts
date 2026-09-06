@@ -42,37 +42,10 @@ export interface CreateInviteCodeResponse {
   inviteCode: InviteCode;
 }
 
-// Provider types
-export type Provider =
-  | "anthropic"
-  | "openai"
-  | "google"
-  | "xai"
-  | "openrouter"
-  | "cerebras"
-  | "fireworks";
-
-export interface ModelInfo {
-  id: string;
-  name: string;
-  description: string;
-  pricing?: string;
-  speed?: string;
-}
-
-export interface ProviderConfig {
-  id: Provider;
-  name: string;
-  models: ModelInfo[];
-  defaultModel: string;
-}
-
 // History types
 export interface HistoryEntry {
   id: string;
   sentence: string;
-  provider: string;
-  model: string;
   createdAt: string; // ISO date string
 }
 
@@ -83,3 +56,6 @@ export interface PaginatedHistory {
   limit: number;
   totalPages: number;
 }
+
+/** Account preferences exposed by the settings API. */
+export type UserSettings = Record<string, never>;

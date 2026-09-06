@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Kaitai is an invite-only beta for AI-powered Japanese sentence analysis. The repo is a Next.js 16 web app (the product and the API) plus a separate Expo/React Native app in `mobile/` that talks to those same routes. Shared types, provider catalogs, and fetch helpers live in `common/`. Auth is Better Auth (email/password) on MongoDB; signup is gated by admin-issued invite codes, and `src/proxy.ts` sends signed-out web visitors to `/beta`. Analysis goes through LangChain against seven providers (Anthropic, OpenAI, Google, xAI, OpenRouter, Cerebras, Fireworks). The user’s chosen provider/model is stored in Mongo and applied server-side — clients do not pick a model per request.
+Kaitai is an invite-only beta for AI-powered Japanese sentence analysis. The repo is a Next.js 16 web app (the product and the API) plus a separate Expo/React Native app in `mobile/` that talks to those same routes. Shared types and fetch helpers live in `common/`. Auth is Better Auth (email/password) on MongoDB; signup is gated by admin-issued invite codes, and `src/proxy.ts` sends signed-out web visitors to `/beta`. Sentence analysis and image text extraction run on the server through LangChain. History documents include provider and model metadata for debugging.
 
 This file is a map of the tree, not a design doc. When you add, remove, rename, or repurpose a path, update the matching line here in the same change. Stale entries are worse than missing ones. Also keep the description above up-to-date as the project evolves. This does not represent every file in the project, just the important ones.
 
@@ -10,7 +10,7 @@ When testing, run the web app through the dockerfile with docker compose.
 
 ```
 .
-├── common/                         Shared types, API clients, provider catalog, image/sentence limits (imported as @common/*)
+├── common/                         Shared types, API clients, image/sentence limits (imported as @common/*)
 ├── src/                            Next.js web app + API (imported as @/*)
 ├── mobile/                         Expo app; own package.json, talks to the web API
 ├── public/                         Static assets served by Next
@@ -21,7 +21,7 @@ When testing, run the web app through the dockerfile with docker compose.
 ├── tsconfig.json                   @/* → src/*, @common/* → common/*; excludes mobile
 ├── biome.json                      Lint/format for the web tree
 ├── components.json                 shadcn/ui config
-├── .env.local.example              Provider keys + optional DEV_ADMIN_* overrides
+├── .env.local.example              OpenRouter key + optional DEV_ADMIN_* overrides
 ├── .github/workflows/              Claude Code GitHub Actions
 └── README.md                       Project overview, setup instructions
 ```
@@ -30,8 +30,7 @@ When testing, run the web app through the dockerfile with docker compose.
 
 | File | Role |
 | --- | --- |
-| `types.ts` | `SentenceAnalysis`, `WordNode`, `Provider`, history/invite shapes |
-| `providers.ts` | `PROVIDER_MAP`, model lists, `DEFAULT_PROVIDER` / `DEFAULT_MODEL` |
+| `types.ts` | `SentenceAnalysis`, `WordNode`, `UserSettings`, history/invite shapes |
 | `api.ts` | `analyzeSentence`, `analyzeImage`, `createInviteCode`; `MAX_SENTENCE_LENGTH` |
 | `image.ts` | 20MB cap and allowed MIME types for image upload |
 | `tailwind.config.js` | Shared light/dark color tokens (web + NativeWind) |
@@ -63,9 +62,9 @@ All analysis/history/settings routes require a session (`withAuth`). Invite crea
 | Path | Role |
 | --- | --- |
 | `app/api/analyze/route.ts` | POST sentence → LLM analysis; cache + history write |
-| `app/api/analyze-image/route.ts` | POST image → Gemini OCR, then same analysis pipeline |
-| `app/api/history/route.ts` | GET paginated history for the signed-in user |
-| `app/api/settings/route.ts` | GET/PUT provider + model; creates defaults on first GET |
+| `app/api/analyze-image/route.ts` | POST image → OCR, then same analysis pipeline |
+| `app/api/history/route.ts` | GET paginated history for the signed-in user; excludes diagnostic metadata |
+| `app/api/settings/route.ts` | GET/PUT account preferences |
 | `app/api/admin/invite-codes/route.ts` | POST a 24h invite code (admin) |
 | `app/api/auth/[...all]/route.ts` | Better Auth catch-all |
 
@@ -79,16 +78,16 @@ All analysis/history/settings routes require a session (`withAuth`). Invite crea
 | `api-auth.ts` | Route-configured auth, permission, and rate-limit wrappers |
 | `db.ts` | Mongo client (dev: reused on `globalThis`) |
 | `rate-limit.ts` | Atomic Mongo per-user/per-IP application route limits; trusted proxy IP extraction |
-| `settings.ts` | `user_settings` collection; `resolveSettings()` for analyze routes |
-| `history.ts` | `history` collection; upsert on `{ userId, sentence }` |
+| `settings.ts` | Mongo account preference helpers + authenticated settings resolver |
+| `history.ts` | `history` collection; upsert on `{ userId, sentence }`; stores provider/model metadata for debugging |
 | `invites.ts` | `inviteCodes` collection: create, claim, TTL |
 | `cors.ts` | JSON + preflight helpers (`*` in dev, empty origin in prod) |
-| `validation.ts` | `sanitizeForLLM`, `isValidModelId` |
+| `validation.ts` | `sanitizeForLLM` |
 | `dev-seed.ts` | Seeds `admin@localhost.dev` in development only |
 | `user-utils.ts` | `SessionUser` type |
 | `utils.ts` | `cn()` (clsx + tailwind-merge), shared `NextJSError` type for web error boundaries |
 | `analysis/analyze.ts` | Prompt + structured-output call |
-| `analysis/providers.ts` | LangChain chat-model factory per provider |
+| `analysis/client.ts` | Server-side AI client configuration for text and images |
 | `analysis/schema.ts` | Zod schema for structured analysis |
 | `analysis/cache.ts` | In-process 1h response cache |
 | `analysis/index.ts` | Barrel |
@@ -104,8 +103,8 @@ All analysis/history/settings routes require a session (`withAuth`). Invite crea
 | `components/SentenceVisualization.tsx` | React Flow dependency graph |
 | `components/ImageUploadModal.tsx` | Photo → `/api/analyze-image` |
 | `components/HistoryModal.tsx` | Paginated history |
-| `components/SettingsModal.tsx` | Settings shell |
-| `components/settings/ModelsSettingsPage.tsx` | Provider/model picker |
+| `components/SettingsModal.tsx` | Settings shell: General placeholder + admin invites |
+| `components/settings/GeneralSettingsPage.tsx` | Account settings placeholder |
 | `components/settings/AdminSettingsPage.tsx` | Invite generation (admin) |
 | `components/SignInDialog.tsx` | Sign-in |
 | `components/UserMenu.tsx` | Account menu |
@@ -113,10 +112,10 @@ All analysis/history/settings routes require a session (`withAuth`). Invite crea
 | `components/HomeHeroBackground.tsx` | Home background |
 | `components/DiagonalMarquee.tsx` | Decorative marquee |
 | `components/ui/` | shadcn primitives |
-| `stores/settings-store.ts` | Zustand + localStorage for provider/model |
-| `providers/settings-store-provider.tsx` | Hydrates store; syncs from server |
+| `stores/settings-store.ts` | Zustand + localStorage account settings scaffold |
+| `providers/settings-store-provider.tsx` | Hydrates store; syncs account preferences from server |
+| `hooks/use-settings-query.ts` | GET/PUT `/api/settings` query + mutation scaffold |
 | `providers/query-client-provider.tsx` | TanStack Query |
-| `hooks/use-settings-query.ts` | GET/PUT `/api/settings` |
 | `hooks/use-drag-drop.ts` | Image drag-and-drop |
 | `proxy.ts` | Prelaunch gate: signed-out → `/beta` (cookie presence only; not auth) |
 | `instrumentation.ts` | Runs `seedDevAdmin()` in Node dev |
@@ -132,7 +131,7 @@ Separate Expo 56 app (file routing). Dev API host is inferred from Expo `hostUri
 | `app/(tabs)/more.tsx` | More / overflow tab |
 | `app/results.tsx` | Analysis results |
 | `app/history.tsx` | History |
-| `app/settings.tsx` | Provider/model |
+| `app/settings.tsx` | General settings placeholder |
 | `app/sign-in.tsx` / `sign-up.tsx` | Auth |
 | `components/themed-text.tsx` | Geist `ThemedText` / `ThemedTextInput` |
 | `components/dependency-map.tsx` | SVG dependency graph |
@@ -142,15 +141,15 @@ Separate Expo 56 app (file routing). Dev API host is inferred from Expo `hostUri
 | `lib/auth-client.ts` | Better Auth Expo client (SecureStore) |
 | `lib/auth-fetch.ts` | Authenticated fetch |
 | `lib/query-client.ts` | Shared Query client |
-| `hooks/use-settings-sync.ts` | Server settings → Zustand |
-| `stores/settings-store.ts` | Local provider/model |
+| `hooks/use-settings-sync.ts` | Server account preferences → Zustand; query + mutation scaffold |
+| `stores/settings-store.ts` | Persisted account preferences |
 | `android/` / `ios/` | Native projects from `expo prebuild` |
 
 ## Conventions
 
 - Web lint/format: `npm run lint` / `npm run format` (Biome). Mobile: `cd mobile && npm run lint`.
-- Analysis, history, and settings always resolve provider/model on the server from `user_settings`.
-- Image text extraction always uses Gemini (`GOOGLE_API_KEY`), then the user’s configured provider for the sentence analysis.
+- Provider/model metadata is stored in history documents for debugging and excluded from client responses.
+- Image text extraction and sentence analysis share the server AI client configuration.
 - Mongo must be a replica set (Better Auth transactions). Docker Compose does this; a lone `mongod` will fail.
 - `docker-compose.yml` is local-only. Do not treat it as a deploy config.
 - Dev admin is seeded only when `NODE_ENV=development`. Never rely on those credentials in production.
